@@ -1,0 +1,144 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+@font-face {
+    font-family: 'LeJourSerif';
+    src: url('font/Le Jour Serif Personal Use Only.otf') format(opentype);
+    font-weight: normal;
+    font-style: normal;
+}
+
+body {
+    background-color: #e6e6e6;
+    height: 100vh;
+    display: flex;
+    align-items: stretch;
+    justify-content: center;
+}
+
+.container {
+    display: flex;
+    width: 100%;
+    max-width: 1200px;
+    height: 100vh;
+    background-color: #e6e6e6;
+}
+
+.image-side {
+    flex: 1.2;
+    display: flex;
+    align-items: flex-end; /* cola na base inferior */
+    justify-content: flex-start; /* cola na esquerda */
+    overflow: hidden;
+}
+
+.image-side img {
+    height: 95vh;
+    width: auto;
+    object-fit: contain;
+    margin-left: 0;
+}
+
+/* ===============================
+FORMULÁRIO - lado direito
+================================*/
+.form-side {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center; /* centraliza tudo horizontalmente */
+    padding: 60px;
+}
+
+/* ===============================
+TÍTULO
+================================*/
+.title {
+    font-family: 'Playfair Display', serif;
+    position: relative;
+    font-size: 120px;
+    font-weight: bold;
+    letter-spacing: 2px;
+    color: #000;
+    text-align: center; /* centraliza o texto */
+    line-height: 1.1;
+}
+
+.vault {
+    font-family: 'LeJourSerif';
+    font-weight: normal;
+    font-weight: normal;
+    display: block;
+    position: relative;
+    font-size: 40px;
+    letter-spacing: 2px;
+    left: 160px;
+    margin-top: -5px;
+}
+
+/* ===============================
+FORMULÁRIO DE LOGIN
+================================*/
+.login-form {
+  font-family: 'Libre Baskerville', serif;
+  width: 80%;
+  margin-top: 60px;
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* centraliza os fieldsets */
+  gap: 25px;
+}
+
+/* Caixa do campo */
+fieldset {
+  border: 1.5px solid #999;
+  padding: 15px 20px;
+  width: 100%;
+  border-radius: 2px;
+  background-color: transparent;
+}
+
+/* Texto acima do campo */
+legend {
+  font-size: 14px;
+  color: #000;
+  letter-spacing: 1px;
+  padding: 0 10px;
+}
+
+/* Input */
+input {
+  width: 100%;
+  border: none;
+  outline: none;
+  background-color: transparent;
+  font-size: 20px;
+  color: #000;
+  margin-top: 5px;
+}
+
+/* ===============================
+  LINK "JOIN US"
+================================*/
+.join {
+  margin-top: 30px;
+  text-align: center; /* centraliza o conteúdo */
+}
+
+.join p {
+  font-weight: bold;
+  margin-bottom: 5px;
+  font-size: 16px;
+}
+
+.join a {
+  text-decoration: none;
+  color: #000;
+  font-size: 14px;
+  letter-spacing: 1px;
+  transition: all 0.3s ease-in-out;
+}
