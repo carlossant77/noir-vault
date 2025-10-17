@@ -1,0 +1,17 @@
+header {
+    width: 100vw;
+    margin: 0;
+    justify-self: center;
+}
+
+nav {
+    display: flex;
+    justify-content: end;
+    gap: 70px;
+    margin-right: 4vw;
+    margin-top: 4vh;
+}
+
+nav i {
+    font-size: 30px;
+}
