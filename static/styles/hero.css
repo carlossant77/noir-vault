@@ -81,7 +81,7 @@ body {
 /* Mensagem de cookies */
 .cookie-banner {
   position: fixed;
-  bottom: 0px; /* Começa fora da tela */
+  bottom: -100px; /* Começa fora da tela */
   left: 0;
   width: 100%;
   background-color: rgba(255, 255, 255, 0.612);

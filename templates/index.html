@@ -14,7 +14,6 @@
       href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap"
       rel="stylesheet"
     />
-
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -57,15 +56,22 @@
         <button class="cookie-button" id="acceptCookies">ACEITAR</button>
       </div>
     </section>
-    <section alt="promocoes">
-      <!-- RESPONSÁVEL: JOSÉ -->
-      <header>
-        <nav>
-          <i class="fa-solid fa-user" id="icon"></i>
-          <i class="fa-solid fa-heart" id="icon"></i>
-          <i class="fa-sharp fa-solid fa-bag-shopping" id="icon"></i>
+    <header>
+        <nav class="navegation-menu">
+          <div>
+            <a href="">MULHER</a>
+            <a href="">HOMEM</a>
+            <a href="">KIDS</a>       
+          </div>
+          <div>
+            <i class="fa-solid fa-user" id="icon"></i>
+            <i class="fa-solid fa-heart" id="icon"></i>
+            <i class="fa-sharp fa-solid fa-bag-shopping" id="icon"></i>
+          </div>
         </nav>
       </header>
+    <section alt="promocoes">
+      <!-- RESPONSÁVEL: JOSÉ -->
       <div class="clothes">
         <div class="clothe">
           <h1>BOTA MONOLITH</h1>
@@ -118,7 +124,21 @@
         <h1>LIMITED EDIT</h1>
       </div>
     </section>
-    <section alt="secao-de-busca"><!-- RESPONSÁVEL: JOSÉ --></section>
-    <script src="/static/assets/cookies.js"></script>
+    <section alt="secao-de-busca" id="secao-de-busca"><!-- RESPONSÁVEL: JOSÉ -->
+        <div class="filtros" id="filtros">
+            <div class="search-bar" id="search-bar">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <p>O QUE ESTÁ PROCURANDO?</p>
+            </div>
+            <div class="filters">
+                <a href="">SAPATOS</a>
+                <a href="">ACESSÓRIOS</a>
+                <a href="">ROUPAS</a>
+                <a href="">SNEARKERS</a>
+                <a href="">BOTAS</a>
+            </div>
+        </div>
+    </section>
+    <script src="/static/scripts/cookies.js"></script>
   </body>
 </html>

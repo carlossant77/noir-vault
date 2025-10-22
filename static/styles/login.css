@@ -139,45 +139,48 @@ input:not(:placeholder-shown) + .floating-label {
 }
 
 /* ===============================
-  LINK "JOIN US"
+  BOTÃO "JOIN US"
 ================================*/
-.join {
-    margin-top: 30px;
-    text-align: center;
-}
-
 .join_us {
+    font-family: 'Libre Baskerville', serif;
     font-weight: bold;
-    margin-top: -50px;
+    background: none;
+    border: none;
+    cursor: pointer;
     font-size: 30px;
-    padding: 20px;
-}
-
-.join_us a {
-    text-decoration: none;
+    padding: 0;
+    margin-bottom: 20px;
+    display: block;
     color: #000;
-    transition: all 0.5s ease-in-out;
+    text-decoration: none;
+    transition: all 0.3s ease-in-out;
+    letter-spacing: 1px;
 }
-
-.join_us a:hover {
+ 
+.join_us:hover {
     color: #444;
-    transition: all 0.5s ease-in-out;
     letter-spacing: 2px;
 }
-
+ 
+/* ===============================
+  LINK "CRIAR CONTA"
+================================*/
 .create {
+    font-family: 'Libre Baskerville', serif;
     text-decoration: none;
     color: #000;
-    font-size: 20px;
-    letter-spacing: 5px;
+    font-size: 16px;
+    letter-spacing: 3px;
     transition: all 0.3s ease-in-out;
     position: relative;
+    display: inline-block;
+    margin-top: 10px;
 }
-
+ 
 .create:hover {
     color: #444;
 }
-
+ 
 .create::after {
     content: '';
     position: absolute;
@@ -188,7 +191,17 @@ input:not(:placeholder-shown) + .floating-label {
     background-color: #444;
     transition: width 0.4s ease-in-out;
 }
-
+ 
 .create:hover::after {
     width: 100%;
+}
+ 
+/* Container dos elementos */
+.join {
+    margin-top: 40px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
 }

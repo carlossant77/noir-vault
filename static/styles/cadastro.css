@@ -153,16 +153,25 @@ input:not(:placeholder-shown) + .floating-label {
 }
 
 .create {
-    text-decoration: none;
+    background: none;
+    border: none;
+    outline: none;
+    padding: 0;
+    margin: 0;
+    font: inherit;
     color: #e6e6e6;
     font-weight: bold;
     font-size: 30px;
     letter-spacing: 5px;
+    text-decoration: none;
     transition: all 0.5s ease-in-out;
-}
+    cursor: pointer;
+    display: inline-block;
+} 
 
 .create:hover {
     color: #919191;
     letter-spacing: 1px;
     transition: all 0.5s ease-in-out;
 }
+
