@@ -171,4 +171,30 @@ nav a:hover::after {
 
 .filtros {
     margin-top: 10px;
+    padding-top: 120px;
+}
+
+.search-bar {
+    display: flex;
+    align-items: center;
+}
+
+.search-bar i {
+    font-size: 40px;
+    margin-left: 34px;
+}
+
+.search-bar p {
+    font-size: 24px;
+    margin-left: 22px;
+    letter-spacing: 4px;
+}
+
+.filters {
+    margin-top: 26px;
+}
+
+.filters a{
+    font-size: 30px;
+    color: #000000;
 }
