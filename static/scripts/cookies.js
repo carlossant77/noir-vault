@@ -2,7 +2,7 @@
 document.addEventListener('DOMContentLoaded', function() {
   setTimeout(function() {
     document.getElementById('cookieBanner').classList.add('show');
-  }, 4000); // 1 segundo de delay
+  }, 1000); // 1 segundo de delay
 });
 
 // Fechar o banner quando o botão for clicado
