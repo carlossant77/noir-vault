@@ -130,6 +130,7 @@ body {
 /* RESPONSIVIDADE MOBILE */
 
 @media screen and (max-width: 440px) {
+  /* RESPONSIVIDADE SESSÃO HERO */
   * {
     overflow-x: hidden;
   }
@@ -184,4 +185,47 @@ body {
     width: 0;
     height: 0;
   }
+
+  /* responsividade cookies */
+  .cookie-banner {
+  position: fixed;
+  bottom: -100px;
+  /* Começa fora da tela */
+  left: 0;
+  width: 100%;
+  background-color: rgba(255, 255, 255, 0.612);
+  color: #000000;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Lustria', serif;
+  z-index: 1000;
+  transition: bottom 0.8s ease-out;
+}
+
+.cookie-banner.show {
+  bottom: 0;
+  /* Sobe para a parte inferior da tela */
+}
+
+.cookie-text {
+  font-size: 16px;
+  text-align: center;
+  margin: 0px;
+  margin-bottom: 20px;
+}
+
+.cookie-button {
+  background-color: #000000;
+  color: #ffffff;
+  border: none;
+  padding: 10px 100px;
+  font-family: 'Lustria', serif;
+  font-size: 14px;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
 }
