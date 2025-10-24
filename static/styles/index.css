@@ -1,3 +1,5 @@
+@import url(/static/styles/card-roupa.css);
+
 * {
     margin: 0;
     padding: 0;
@@ -98,54 +100,6 @@ nav a:hover::after {
     justify-content: space-around;
     margin-top: 40px;
     width: 100%;
-}
-
-.decoration {
-    height: 6px;
-    width: 60px;
-    background-color: #000000;
-    margin-top: 4px;
-    margin-left: 4px;
-}
-
-.card {
-    margin-top: 10px;
-    background-color: #d7d7d7;
-    height: 380px;
-    width: 300px;
-    z-index: 0;
-}
-
-.card img {
-    position: relative;
-}
-
-#calca {
-    left: 25px;
-}
-
-#bota {
-    right: 75px;
-    z-index: 0;
-}
-
-.clothe h1 {
-    font-family: 'Libre Baskerville', serif;
-    font-weight: normal;
-    font-size: 24px;
-    letter-spacing: 4px;
-}
-
-#icon-roupa {
-    position: relative;
-    font-size: 38px;
-    margin-left: 270px;
-    margin-top: -60px;
-}
-
-#icon-roupa:hover {
-    cursor: pointer;
-    color: #000000;
 }
 
 .title {
