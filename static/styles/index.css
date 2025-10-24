@@ -145,10 +145,33 @@ nav a:hover::after {
 }
 
 .filters {
-    margin-top: 26px;
+    display: flex;
+    justify-content: center;
+    margin-top: 64px;
+    gap: 64px;
 }
 
 .filters a{
     font-size: 30px;
     color: #000000;
+    text-decoration: none;
+    font-weight: normal;
+    position: relative;
+}
+
+.filters a::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -3px;
+    /* distância da linha para o texto */
+    width: 0;
+    height: 2px;
+    background-color: currentColor;
+    /* usa a cor do texto */
+    transition: width 0.3s ease;
+}
+
+.filters a:hover::after {
+    width: 100%;
 }
