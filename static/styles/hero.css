@@ -5,17 +5,17 @@
 }
 
 @font-face {
-    font-family: 'LeJourSerif';
-    src: url('/font/Le Jour Serif Personal Use Only.otf') format(opentype);
-    font-weight: bold;
-    font-style: normal;
+  font-family: 'LeJourSerif';
+  src: url('/font/Le Jour Serif Personal Use Only.otf') format(opentype);
+  font-weight: bold;
+  font-style: normal;
 }
 
 @font-face {
-    font-family: 'SimpleSerenitySerif';
-    src: url('/static/fonts/Simple-Serenity-Serif.ttf') format(truetype);
-    font-weight: bold;
-    font-style: normal;
+  font-family: 'SimpleSerenitySerif';
+  src: url('/static/fonts/Simple-Serenity-Serif.ttf') format(truetype);
+  font-weight: bold;
+  font-style: normal;
 }
 
 body {
@@ -42,7 +42,8 @@ body {
   letter-spacing: 50px;
   position: relative;
   z-index: 1;
-  top: -250px; /* subido para cima */
+  top: -250px;
+  /* subido para cima */
   mix-blend-mode: darken;
 }
 
@@ -58,7 +59,8 @@ body {
 /* Legenda e linha */
 .subtitle-container {
   position: absolute;
-  bottom: 65%; /* subido um pouco */
+  bottom: 65%;
+  /* subido um pouco */
   width: 90%;
   display: flex;
   justify-content: space-between;
@@ -81,7 +83,8 @@ body {
 /* Mensagem de cookies */
 .cookie-banner {
   position: fixed;
-  bottom: -100px; /* Começa fora da tela */
+  bottom: -100px;
+  /* Começa fora da tela */
   left: 0;
   width: 100%;
   background-color: rgba(255, 255, 255, 0.612);
@@ -96,7 +99,8 @@ body {
 }
 
 .cookie-banner.show {
-  bottom: 0; /* Sobe para a parte inferior da tela */
+  bottom: 0;
+  /* Sobe para a parte inferior da tela */
 }
 
 .cookie-text {
@@ -121,4 +125,61 @@ body {
   transition: all 0.3s ease;
   background-color: #d5d5d5;
   color: #000000;
+}
+
+@media screen and (max-width: 440px) {
+  * {
+    overflow-x: hidden;
+  }
+
+  .hero {
+    width: 100vw;
+    display: flex;
+    justify-content: flex-start;
+    box-sizing: border-box;
+    margin: 0px;
+    align-items: center;
+  }
+
+  .hero img {
+    position: static;
+    height: 50%;
+    width: auto;
+    margin-top: 120px;
+  }
+
+  .titleHero {
+    position: static;
+    font-size: 54px;
+    letter-spacing: 4px;
+    margin-top: 26px;
+  }
+
+  .titleHero h1{
+    text-align: center;
+  }
+
+  .subtitle-container {
+    width: 100%;
+    margin-top: 16px;
+    position: static;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'SimpleSerenitySerif', serif;
+  }
+
+  .subtitle {
+    font-weight: 900;
+    font-size: 20px;
+    letter-spacing: 2px;
+    margin: 0px;
+    padding: 0px;
+    text-align: center;
+  }
+
+  .line {
+    width: 0;
+    height: 0;
+  }
 }
