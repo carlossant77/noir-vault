@@ -127,9 +127,109 @@ body {
   color: #000000;
 }
 
+@media screen and (max-width: 768px) {
+  * {
+    overflow-x: hidden;
+  }
+
+  .hero {
+    width: 100vw;
+    display: flex;
+    justify-content: flex-start;
+    box-sizing: border-box;
+    margin: 0px;
+    align-items: center;
+  }
+
+  .hero img {
+    position: static;
+    height: 70%;
+    width: auto;
+  }
+
+  .titleHero {
+    position: static;
+    font-size: 126px;
+    letter-spacing: 4px;
+    margin-top: 16px;
+  }
+
+  .titleHero h1 {
+    text-align: center;
+  }
+
+  .subtitle-container {
+    width: 100%;
+    margin-top: 16px;
+    position: static;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    font-family: 'SimpleSerenitySerif', serif;
+  }
+
+  .subtitle {
+    font-weight: 900;
+    font-size: 26px;
+    letter-spacing: 2px;
+    margin: 0px;
+    padding: 0px;
+    text-align: center;
+  }
+
+  .line {
+    width: 40%;
+    height: 2px;
+  }
+
+  /* responsividade cookies */
+  .cookie-banner {
+    position: fixed;
+    bottom: -100px;
+    /* Começa fora da tela */
+    left: 0;
+    width: 100%;
+    background-color: rgba(255, 255, 255, 0.612);
+    color: #000000;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Lustria', serif;
+    z-index: 1000;
+    transition: bottom 0.8s ease-out;
+  }
+
+  .cookie-banner.show {
+    bottom: 0;
+    /* Sobe para a parte inferior da tela */
+  }
+
+  .cookie-text {
+    font-size: 16px;
+    text-align: center;
+    margin: 0px;
+    margin-bottom: 20px;
+  }
+
+  .cookie-button {
+    background-color: #000000;
+    color: #ffffff;
+    border: none;
+    padding: 10px 100px;
+    font-family: 'Lustria', serif;
+    font-size: 14px;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+}
+
 /* RESPONSIVIDADE MOBILE */
 
 @media screen and (max-width: 440px) {
+
   /* RESPONSIVIDADE SESSÃO HERO */
   * {
     overflow-x: hidden;
@@ -158,7 +258,7 @@ body {
     margin-top: 26px;
   }
 
-  .titleHero h1{
+  .titleHero h1 {
     text-align: center;
   }
 
@@ -188,44 +288,45 @@ body {
 
   /* responsividade cookies */
   .cookie-banner {
-  position: fixed;
-  bottom: -100px;
-  /* Começa fora da tela */
-  left: 0;
-  width: 100%;
-  background-color: rgba(255, 255, 255, 0.612);
-  color: #000000;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-family: 'Lustria', serif;
-  z-index: 1000;
-  transition: bottom 0.8s ease-out;
+    position: fixed;
+    bottom: -100px;
+    /* Começa fora da tela */
+    left: 0;
+    width: 100%;
+    background-color: rgba(255, 255, 255, 0.612);
+    color: #000000;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Lustria', serif;
+    z-index: 1000;
+    transition: bottom 0.8s ease-out;
+  }
+
+  .cookie-banner.show {
+    bottom: 0;
+    /* Sobe para a parte inferior da tela */
+  }
+
+  .cookie-text {
+    font-size: 16px;
+    text-align: center;
+    margin: 0px;
+    margin-bottom: 20px;
+  }
+
+  .cookie-button {
+    background-color: #000000;
+    color: #ffffff;
+    border: none;
+    padding: 10px 100px;
+    font-family: 'Lustria', serif;
+    font-size: 14px;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
 }
 
-.cookie-banner.show {
-  bottom: 0;
-  /* Sobe para a parte inferior da tela */
-}
-
-.cookie-text {
-  font-size: 16px;
-  text-align: center;
-  margin: 0px;
-  margin-bottom: 20px;
-}
-
-.cookie-button {
-  background-color: #000000;
-  color: #ffffff;
-  border: none;
-  padding: 10px 100px;
-  font-family: 'Lustria', serif;
-  font-size: 14px;
-  letter-spacing: 1px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-}
