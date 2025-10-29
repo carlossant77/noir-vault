@@ -260,7 +260,7 @@ body {
 
   .titleHero {
     position: static;
-    font-size: 170px;
+    font-size: 18vw;
     letter-spacing: 4px;
     margin-top: 16px;
   }
@@ -333,9 +333,10 @@ body {
 
   .titleHero {
     position: static;
-    font-size: 126px;
+    font-size: 16vw;
+    margin-top: 0px;
     letter-spacing: 4px;
-    margin-top: 16px;
+    line-height: 160px;
   }
 
   .titleHero h1 {
@@ -344,7 +345,6 @@ body {
 
   .subtitle-container {
     width: 100%;
-    margin-top: 16px;
     position: static;
     display: flex;
     align-items: center;
@@ -410,9 +410,7 @@ body {
   }
 }
 
-/* RESPONSIVIDADE MOBILE */
-
-@media screen and (max-width: 440px) {
+@media screen and (max-width: 455px) {
 
   /* RESPONSIVIDADE SESSÃO HERO */
   * {
@@ -437,8 +435,9 @@ body {
 
   .titleHero {
     position: static;
-    font-size: 54px;
+    font-size: 16vw;
     letter-spacing: 4px;
+    line-height: 120px;
     margin-top: 26px;
   }
 
@@ -458,7 +457,7 @@ body {
 
   .subtitle {
     font-weight: 900;
-    font-size: 20px;
+    font-size: 24px;
     letter-spacing: 2px;
     margin: 0px;
     padding: 0px;
