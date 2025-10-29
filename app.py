@@ -45,7 +45,7 @@ def home():
         return render_template(
             'index.html',
             logado=True,
-            usuario=session['usuario'],
+            usuario=session['usuario'] if 'usuario' in session else None,
             is_admin=session.get('is_admin', False)
         )
 
