@@ -52,7 +52,6 @@ body {
   position: absolute;
   bottom: 50;
   width: 50%;
-  max-width: 600px;
   z-index: 2;
 }
 
@@ -128,19 +127,28 @@ body {
 }
 
 @media screen and (max-width: 1440px) {
-  .titleHero {
-    position: static;
-    font-size: 170px;
-    letter-spacing: 4px;
-    margin-top: 16px;
-  }
-}
-
-@media screen and (max-width: 1024px) {
   * {
     overflow-x: hidden;
   }
 
+  .hero {
+    justify-content: flex-start;
+  }
+
+  .titleHero {
+    position: static;
+    font-size: 14vw;
+    letter-spacing: 25px;
+  }
+
+  .subtitle-container {
+    position: static;
+    top: 200px;
+    width: 85%;
+  }
+}
+
+@media screen and (max-width: 1024px) {
   .hero {
     width: 100vw;
     display: flex;
