@@ -126,6 +126,45 @@ body {
   color: #000000;
 }
 
+@media screen and (max-width: 1920px) {
+  * {
+    overflow-x: hidden;
+  }
+
+  .hero {
+    justify-content: flex-start;
+  }
+
+  .titleHero {
+    position: static;
+    font-size: 12vw;
+    letter-spacing: 45px;
+    line-height: 220px;
+    overflow: hidden;
+  }
+
+  .subtitle-container {
+    position: static;
+    width: 90%;
+  }
+
+  .subtitle {
+    font-weight: 900;
+    font-size: 50px;
+    letter-spacing: 10px;
+  }
+
+  .hero img {
+    height: 80%;
+    width: auto;
+    top: 140px;
+  }
+
+  .cookie-text {
+    font-size: 20px;
+  }
+}
+
 @media screen and (max-width: 1440px) {
   * {
     overflow-x: hidden;
