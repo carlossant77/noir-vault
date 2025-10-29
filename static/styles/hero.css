@@ -137,14 +137,21 @@ body {
 
   .titleHero {
     position: static;
-    font-size: 14vw;
-    letter-spacing: 25px;
+    font-size: 12vw;
+    letter-spacing: 30px;
+    line-height: 185px;
+    overflow: hidden;
   }
 
   .subtitle-container {
     position: static;
-    top: 200px;
-    width: 85%;
+    width: 90%;
+  }
+
+  .hero img {
+    height: 80%;
+    width: auto;
+    top: 140px;
   }
 }
 
