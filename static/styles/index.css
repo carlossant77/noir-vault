@@ -32,7 +32,6 @@ nav {
     width: 100%;
     display: flex;
     justify-content: space-between;
-    gap: 6 0px;
     padding-top: 26px;
     padding-bottom: 26px;
     background-color: #e6e6e6;
@@ -83,13 +82,18 @@ nav a:hover::after {
     width: 100%;
 }
 
-#icon {
-    font-size: 36px;
+.menu-icons {
+    display: flex;
+    gap: 70px;
     margin-right: 70px;
+}
+
+nav i {
+    font-size: 36px;
     transition: 0.5s;
 }
 
-#icon:hover {
+nav i:hover {
     transition: 0.5s;
     cursor: pointer;
     color: grey;
@@ -108,14 +112,10 @@ nav a:hover::after {
     height: 170px;
     justify-content: center;
     align-items: center;
-    font-size: 60px;
-
-}
-
-.title h1 {
-    font-weight: normal;
+    font-size: 40px;
     letter-spacing: 40px;
 }
+
 
 #secao-de-busca {
     height: 100vh;
@@ -151,7 +151,7 @@ nav a:hover::after {
     gap: 64px;
 }
 
-.filters a{
+.filters a {
     font-size: 30px;
     color: #000000;
     text-decoration: none;
@@ -176,6 +176,94 @@ nav a:hover::after {
     width: 100%;
 }
 
-@media screen and (min-width: 320px) {
-    
+@media screen and (max-width: 440px) {
+    * {
+        overflow-x: hidden;
+    }
+    header {
+        width: 100%;
+        margin: 0;
+        justify-self: center;
+        position: sticky;
+        top: 0px;
+        z-index: 9998;
+        /* acima de tudo */
+        isolation: isolate;
+        /* impede que contextos abaixo o ultrapassem */
+    }
+
+    nav {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        padding-top: 26px;
+        padding-bottom: 26px;
+        background-color: #e6e6e6;
+        z-index: 999;
+    }
+
+    nav i {
+        font-size: 24px;
+    }
+
+    nav label {
+        margin-left: 20px;
+    }
+
+    .menu-icons {
+        display: flex;
+        gap: 30px;
+        margin-right: 20px;
+    }
+
+    nav a {
+        position: relative;
+        display: none;
+        font-family: 'Lucida Sans', 'sans-serif';
+        margin-left: 35px;
+        text-decoration: none;
+        color: #000000;
+        font-size: 26px;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.4s ease;
+        z-index: 999;
+    }
+
+    nav a.visible {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    nav a::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        bottom: -3px;
+        /* distância da linha para o texto */
+        width: 0;
+        height: 2px;
+        background-color: currentColor;
+        /* usa a cor do texto */
+        transition: width 0.3s ease;
+    }
+
+    nav a:hover::after {
+        width: 100%;
+    }
+
+    .clothes {
+        display: flex;
+        flex-wrap: wrap;
+        margin-top: 0px;
+    }
+
+    .title {
+        height: 100px;
+        align-items: start;
+        font-size: 20px;
+        letter-spacing: 15px;
+        text-align: center;
+        margin-top: 30px;
+    }
 }

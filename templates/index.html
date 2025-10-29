@@ -57,12 +57,16 @@
     </section>
     <header>
       <nav class="navegation-menu">
+        <label for="menu">
+          <i class="fa-solid fa-bars"></i>
+        </label>
+        <input type="checkbox" name="menu" id="menu" hidden>
         <div id="hidden-menu">
           <a href="" id="link-menu">MULHER</a>
           <a href="" id="link-menu2">HOMEM</a>
           <a href="" id="link-menu3">KIDS</a>
         </div>
-        <div>
+        <div class="menu-icons">
           <i class="fa-solid fa-user" id="icon"></i>
           {% if is_admin %}
           <i class="fa-solid fa-chart-pie" id="icon"></i>

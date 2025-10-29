@@ -127,10 +127,6 @@ body {
 }
 
 @media screen and (max-width: 2560px) {
-  * {
-    overflow-x: hidden;
-  }
-
   .hero {
     justify-content: flex-start;
   }
@@ -166,10 +162,6 @@ body {
 }
 
 @media screen and (max-width: 1920px) {
-  * {
-    overflow-x: hidden;
-  }
-
   .hero {
     justify-content: flex-start;
   }
@@ -205,10 +197,6 @@ body {
 }
 
 @media screen and (max-width: 1440px) {
-  * {
-    overflow-x: hidden;
-  }
-
   .hero {
     justify-content: flex-start;
   }
@@ -312,10 +300,6 @@ body {
 }
 
 @media screen and (max-width: 768px) {
-  * {
-    overflow-x: hidden;
-  }
-
   .hero {
     width: 100vw;
     display: flex;
@@ -410,13 +394,9 @@ body {
   }
 }
 
-@media screen and (max-width: 455px) {
+/* RESPONSIVIDADE MOBILE */
 
-  /* RESPONSIVIDADE SESSÃO HERO */
-  * {
-    overflow-x: hidden;
-  }
-
+@media screen and (max-width: 440px) {
   .hero {
     width: 100vw;
     display: flex;
