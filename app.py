@@ -42,12 +42,12 @@ def hash_senha(senha):
 
 @app.route('/')
 def home():
-        return render_template(
-            'index.html',
-            logado=True,
-            usuario=session['usuario'],
-            is_admin=session.get('is_admin', False)
-        )
+    return render_template(
+        'index.html',
+        logado=('usuario' in session),
+        usuario=session.get('usuario'),
+        is_admin=session.get('is_admin', False)
+    )
 
 
 @app.route('/login', methods=['GET', 'POST'])
