@@ -38,6 +38,10 @@ nav {
     z-index: 999;
 }
 
+nav label, hr {
+    display: none;
+}
+
 .navegation-menu {
     background-color: #f5f5f5;
     z-index: 999;
@@ -61,6 +65,18 @@ nav a {
 }
 
 nav a.visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+nav label {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s ease;
+    z-index: 999
+}
+
+nav label.visible {
     opacity: 1;
     pointer-events: auto;
 }
@@ -177,9 +193,6 @@ nav i:hover {
 }
 
 @media screen and (max-width: 440px) {
-    * {
-        overflow-x: hidden;
-    }
     header {
         width: 100%;
         margin: 0;
@@ -202,6 +215,30 @@ nav i:hover {
         z-index: 999;
     }
 
+    nav label, hr {
+        display: block;
+    }
+
+    #hidden-menu {
+        display: none;
+        flex-direction: column;
+        position: absolute;
+        margin-top: 35px;
+        background-color: #f5f5f5;
+        width: 100%;
+        gap: 25px;
+        padding: 20px 0px;
+        transition: max-height 0.5s ease-in-out, opacity 0.5s ease-in-out;
+    }
+
+    #hidden-menu a {
+        margin-left: 20px;
+    }
+
+    nav input[type="checkbox"]:checked~#hidden-menu {
+        display: flex;
+    }
+
     nav i {
         font-size: 24px;
     }
@@ -217,17 +254,9 @@ nav i:hover {
     }
 
     nav a {
-        position: relative;
-        display: none;
-        font-family: 'Lucida Sans', 'sans-serif';
-        margin-left: 35px;
-        text-decoration: none;
-        color: #000000;
         font-size: 26px;
-        opacity: 0;
-        pointer-events: none;
-        transition: opacity 0.4s ease;
-        z-index: 999;
+        opacity: 1;
+        pointer-events: all;
     }
 
     nav a.visible {
