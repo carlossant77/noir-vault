@@ -38,7 +38,8 @@ nav {
     z-index: 999;
 }
 
-nav label, hr {
+nav label,
+hr {
     display: none;
 }
 
@@ -62,6 +63,10 @@ nav a {
     pointer-events: none;
     transition: opacity 0.4s ease;
     z-index: 999;
+}
+
+.invisible {
+    display: none;
 }
 
 nav a.visible {
@@ -135,6 +140,7 @@ nav i:hover {
 
 #secao-de-busca {
     height: 100vh;
+    width: 100vw;
     margin-top: 40px;
     background-color: #e9e9e9;
 }
@@ -192,9 +198,41 @@ nav i:hover {
     width: 100%;
 }
 
+@media screen and (max-width: 768px) {
+    .menu-icons {
+        display: flex;
+        gap: 50px;
+        margin-right: 40px;
+    }
+
+    .clothes {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        margin-top: 0px;
+        gap: 6%;
+    }
+
+    .title {
+        height: 100px;
+        font-size: 30px;
+        letter-spacing: 15px;
+        text-align: center;
+        margin-top: 50px;
+    }
+
+    .filters {
+        gap: 40px;
+        margin-top: 50px;
+    }
+
+    .filters a {
+        font-size: 24px;
+    }
+}
+
 @media screen and (max-width: 440px) {
     header {
-        width: 100%;
         margin: 0;
         justify-self: center;
         position: sticky;
@@ -215,7 +253,8 @@ nav i:hover {
         z-index: 999;
     }
 
-    nav label, hr {
+    nav label,
+    hr {
         display: block;
     }
 
@@ -296,5 +335,34 @@ nav i:hover {
         letter-spacing: 15px;
         text-align: center;
         margin-top: 30px;
+    }
+
+    .filtros {
+        margin-top: 10px;
+        padding-top: 100px;
+    }
+
+    .search-bar {
+        display: flex;
+        align-items: center;
+    }
+
+    .search-bar i {
+        font-size: 30px;
+        margin-left: 16px;
+    }
+
+    .search-bar p {
+        font-size: 20px;
+        margin-left: 16px;
+        letter-spacing: 2px;
+    }
+
+    .filters {
+        display: none;
+    }
+
+    .invisible {
+        display: block;
     }
 }
