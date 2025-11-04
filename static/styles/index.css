@@ -284,7 +284,9 @@ nav i:hover {
     .clothes {
         display: flex;
         flex-wrap: wrap;
+        justify-content: center;
         margin-top: 0px;
+        gap: 6%;
     }
 
     .title {
