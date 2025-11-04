@@ -65,6 +65,10 @@ nav a {
     z-index: 999;
 }
 
+.invisible {
+    display: none;
+}
+
 nav a.visible {
     opacity: 1;
     pointer-events: auto;
@@ -193,9 +197,41 @@ nav i:hover {
     width: 100%;
 }
 
+@media screen and (max-width: 768px) {
+    .menu-icons {
+        display: flex;
+        gap: 50px;
+        margin-right: 40px;
+    }
+
+    .clothes {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        margin-top: 0px;
+        gap: 6%;
+    }
+
+    .title {
+        height: 100px;
+        font-size: 30px;
+        letter-spacing: 15px;
+        text-align: center;
+        margin-top: 50px;
+    }
+
+    .filters {
+        gap: 40px;
+        margin-top: 50px;
+    }
+
+    .filters a {
+        font-size: 24px;
+    }
+}
+
 @media screen and (max-width: 440px) {
     header {
-        width: 100%;
         margin: 0;
         justify-self: center;
         position: sticky;
@@ -325,4 +361,7 @@ nav i:hover {
         display: none;
     }
 
+    .invisible {
+        display: block;
+    }
 }

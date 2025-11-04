@@ -38,8 +38,31 @@
     color: #000000;
 }
 
-@media screen and (max-width: 440px) {
+@media screen and (max-width: 768px) {
+    .clothe h1 {
+        font-size: 20px;
+        letter-spacing: 2px;
+        margin-top: 10px;
+    }
 
+    .decoration {
+        height: 4px;
+        width: 60px;
+    }
+
+    .card {
+        margin-top: 10px;
+        height: 360px;
+        width: 270px;
+        z-index: 0;
+    }
+
+    #icon-roupa {
+        display: none;
+    }
+}
+
+@media screen and (max-width: 440px) {
     .clothe {
         width: 145px;
         margin-top: 10px;
