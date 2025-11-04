@@ -38,7 +38,8 @@ nav {
     z-index: 999;
 }
 
-nav label, hr {
+nav label,
+hr {
     display: none;
 }
 
@@ -215,7 +216,8 @@ nav i:hover {
         z-index: 999;
     }
 
-    nav label, hr {
+    nav label,
+    hr {
         display: block;
     }
 
@@ -297,4 +299,30 @@ nav i:hover {
         text-align: center;
         margin-top: 30px;
     }
+
+    .filtros {
+        margin-top: 10px;
+        padding-top: 100px;
+    }
+
+    .search-bar {
+        display: flex;
+        align-items: center;
+    }
+
+    .search-bar i {
+        font-size: 30px;
+        margin-left: 16px;
+    }
+
+    .search-bar p {
+        font-size: 20px;
+        margin-left: 16px;
+        letter-spacing: 2px;
+    }
+
+    .filters {
+        display: none;
+    }
+
 }
