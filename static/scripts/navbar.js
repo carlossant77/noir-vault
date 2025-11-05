@@ -25,7 +25,7 @@ document.addEventListener("scroll", () => {
         }
       });
     },
-    { threshold: 1 }
+    { threshold: 0.8 }
   ); // 10% visível já ativa
 
   // Observa a seção desejada
