@@ -198,7 +198,7 @@ nav i:hover {
     width: 100%;
 }
 
-@media screen and (max-width: 768px) {
+@media screen and (max-width: 1024px) {
     .menu-icons {
         display: flex;
         gap: 50px;
@@ -209,6 +209,7 @@ nav i:hover {
         display: flex;
         flex-wrap: wrap;
         justify-content: center;
+        width: 100vw;
         margin-top: 0px;
         gap: 6%;
     }
@@ -324,6 +325,7 @@ nav i:hover {
         display: flex;
         flex-wrap: wrap;
         justify-content: center;
+        width: 100vw;
         margin-top: 0px;
         gap: 6%;
     }

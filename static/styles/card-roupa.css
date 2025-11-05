@@ -41,30 +41,6 @@
 @media screen and (max-width: 1024px) {
     .clothe h1 {
         font-size: 20px;
-        letter-spacing: 0px;
-    }
-
-    .decoration {
-        height: 4px;
-        width: 60px;
-    }
-
-    .card {
-        margin-top: 10px;
-        background-color: #d7d7d7;
-        height: 300px;
-        width: 240px;
-        z-index: 0;
-    }
-
-    #icon-roupa {
-        display: none;
-    }
-}
-
-@media screen and (max-width: 768px) {
-    .clothe h1 {
-        font-size: 20px;
         letter-spacing: 2px;
         margin-top: 10px;
     }
@@ -75,14 +51,26 @@
     }
 
     .card {
+        display: flex;
+        justify-content: center;
         margin-top: 10px;
         height: 360px;
-        width: 270px;
+        width: 304px;
         z-index: 0;
+    }
+
+    .card img {
+        height: 360px;
     }
 
     #icon-roupa {
         display: none;
+    }
+}
+
+@media screen and (max-width: 648px) {
+    .card {
+        width: 260px;
     }
 }
 
