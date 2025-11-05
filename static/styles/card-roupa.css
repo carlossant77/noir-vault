@@ -1,7 +1,14 @@
+.clothes {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 100vw;
+}
+
 .clothe h1 {
     font-family: 'Libre Baskerville', serif;
     font-weight: normal;
-    font-size: 24px;
+    font-size: 1.6vw;
     letter-spacing: 4px;
 }
 
@@ -14,6 +21,8 @@
 }
 
 .card {
+    display: flex;
+    justify-content: center;
     margin-top: 10px;
     background-color: #d7d7d7;
     height: 380px;
@@ -22,11 +31,8 @@
     overflow: hidden;
 }
 
-.card img {
-    position: relative;
-}
-
 #icon-roupa {
+    display: none;
     position: relative;
     font-size: 38px;
     margin-left: 270px;
