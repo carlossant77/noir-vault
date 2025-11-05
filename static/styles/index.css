@@ -198,6 +198,37 @@ nav i:hover {
     width: 100%;
 }
 
+@media screen and (max-width: 2560px) {
+    .title {
+        margin-top: 80px;
+    }
+}
+
+@media screen and (max-width: 1920px) {
+    .title {
+        margin-top: 50px;
+    }
+}
+
+@media screen and (max-width: 1440px) {
+    .clothes {
+        display: flex;
+        justify-content: space-around;
+        margin-top: 40px;
+        width: 100%;
+    }
+
+    .title {
+        display: flex;
+        font-family: 'Libre Baskerville', serif;
+        height: 170px;
+        justify-content: center;
+        align-items: center;
+        font-size: 40px;
+        letter-spacing: 40px;
+    }
+}
+
 @media screen and (max-width: 1024px) {
     .menu-icons {
         display: flex;

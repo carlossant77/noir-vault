@@ -44,6 +44,51 @@
     color: #000000;
 }
 
+@media screen and (max-width: 2560px) {
+    .card {
+        display: flex;
+        justify-content: center;
+        margin-top: 18px;
+        height: 500px;
+        width: 420px;
+        z-index: 0;
+    }
+
+    .card img {
+        height: 500px;
+    }
+
+    .decoration {
+        margin-top: 12px;
+    }
+}
+
+@media screen and (max-width: 1920px) {
+    .card {
+        display: flex;
+        justify-content: center;
+        margin-top: 10px;
+        height: 440px;
+        width: 360px;
+        z-index: 0;
+    }
+
+    .card img {
+        height: 440px;
+    }
+}
+
+@media screen and (max-width: 1440px) {
+    .card {
+        height: 380px;
+        width: 300px;
+    }
+
+    .card img {
+        height: 380px;
+    }
+}
+
 @media screen and (max-width: 1024px) {
     .clothe h1 {
         font-size: 20px;
