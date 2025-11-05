@@ -19,7 +19,6 @@
 }
 
 body {
-  background-color: #f5f5f5;
   color: #000;
   overflow-x: hidden;
 }
@@ -32,6 +31,7 @@ body {
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  overflow: hidden;
 }
 
 /* Eleva o título */

@@ -25,9 +25,12 @@ document.addEventListener("scroll", () => {
         }
       });
     },
-    { threshold: 0.8 }
-  ); // 10% visível já ativa
+    { threshold: 0.7 },
+  );
 
-  // Observa a seção desejada
   observer.observe(section2);
 });
+
+// section de funcionalidades do nav - RESPONSÁVEL: JOSÉ
+
+
