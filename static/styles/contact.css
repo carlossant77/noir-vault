@@ -169,4 +169,50 @@
     .form-inputs textarea:valid {
         background-color: #000000;
     }
+
+    .form-inputs button {
+        cursor: pointer;
+    }
+}
+
+@media screen and (min-width: 1440px) {
+    .contact-section {
+        width: 100vw;
+        background-image: url(/static/assets/TalkToUs_Pc.png);
+        background-repeat: no-repeat;
+        background-size: 50%;
+        background-position: 0% 20%;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .contact-title {
+        font-size: 140px;
+        margin-left: 30px;
+        line-height: 180px;
+    }
+
+    .form-inputs {
+        gap: 30px;
+        width: 600px;
+        margin-top: 140px;
+        margin-bottom: 0px;
+        margin-right: 100px;
+    }
+
+    .form-inputs textarea {
+        height: 140px;
+    }
+
+    .form-inputs button {
+        width: 120px;
+        height: 40px;
+        cursor: pointer;
+    }
+
+    .form-inputs button:hover {
+        background-color: #4A4A4A;
+        transition: 0.3s;
+    }
 }
