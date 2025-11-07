@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
   <meta charset="UTF-8">
   <title>Cadastro de Produtos</title>
 </head>
+
 <body>
   <h1>Cadastrar Produto</h1>
 
@@ -27,6 +29,7 @@
       <th>Qtd</th>
       <th>Preço (R$)</th>
       <th>Foto</th>
+      <th>Ações</th>
     </tr>
 
     {% for p in produtos %}
@@ -39,13 +42,29 @@
       <td>{{ "%.2f"|format(p['preco']/100) }}</td>
       <td>
         {% if p['foto'] %}
-          <img src="{{ url_for('static', filename='uploads/' ~ p['foto']) }}" width="80">
+        <img src="{{ url_for('static', filename='uploads/' ~ p['foto']) }}" width="80">
         {% else %}
-          —
+        —
         {% endif %}
+      </td>
+      <td>
+        <!-- Form para REMOVER produto -->
+        <form action="/remover_do_carrinho/{{ p['produto_id'] }}" method="POST" style="display:inline;">
+          <button type="submit">❌ Remover</button>
+        </form>
+
+        <!-- Form para ADICIONAR AO CARRINHO -->
+        <form action="/adicionar_ao_carrinho/{{ p['produto_id'] }}" method="POST" style="display:inline;">
+          <input type="hidden" name="quantidade" value="1">
+          <button type="submit">🛒 Adicionar</button>
+        </form>
       </td>
     </tr>
     {% endfor %}
   </table>
+
+  <br>
+  <a href="/carrinho">🛍️ Ver Carrinho</a>
 </body>
+
 </html>
