@@ -14,7 +14,7 @@
     font-family: 'Libre Baskerville', serif;
     font-size: 70px;
     letter-spacing: 20px;
-    margin-top: 78px;
+    margin-top: 90px;
     align-self: flex-end;
     text-align: end;
     font-weight: 100;
@@ -26,29 +26,31 @@
     justify-content: center;
     gap: 14px;
     width: 310px;
-    margin-top: 140px;
+    margin-top: 120px;
+    margin-bottom: 78px;
 }
 
 .form-inputs input {
-    background-color: #343434;
-    font-family: 'Libre Baskerville', serif;
+    background-color: transparent;
+    color: #d7d7d7;
     border: none;
+    border-bottom: 2px solid #d7d7d7;
+    font-family: 'Libre Baskerville', serif;
     height: 40px;
     border-radius: 4px;
     padding-left: 8px;
-    color: #d7d7d7;
 }
 
 .form-inputs textarea {
-    background-color: #343434;
+    background-color: transparent;
     color: #d7d7d7;
+    border: 2px solid #d7d7d7;
     font-family: 'Libre Baskerville', serif;
     border-radius: 4px;
     padding-left: 8px;
     padding-top: 8px;
-    border: none;
     resize: none;
-    height: 100px;
+    height: 80px;
 }
 
 .form-inputs textarea::placeholder {
@@ -79,7 +81,37 @@
 }
 
 @media screen and (min-width: 425px) {
-    .contact-section {
-        
+    .contact-title {
+        font-size: 100px;
+        letter-spacing: 40px;
+        margin-top: 100px;
+    }
+
+    .form-inputs {
+        gap: 30px;
+        width: 460px;
+        margin-top: 100px;
+    }
+
+    .form-inputs input {
+        background-color: transparent;
+        border-bottom: 2px solid #d7d7d7;
+        height: 60px;
+        border-radius: 4px;
+        padding-left: 8px;
+        color: #d7d7d7;
+        font-size: 18px;
+    }
+
+    .form-inputs textarea {
+        background-color: transparent;
+        color: #d7d7d7;
+        border: 2px solid #d7d7d7;
+        font-size: 18px;
+        border-radius: 4px;
+        padding-left: 8px;
+        padding-top: 8px;
+        resize: none;
+        height: 100px;
     }
 }
