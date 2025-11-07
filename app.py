@@ -1,4 +1,4 @@
-from flask import Flask, request, redirect, session, render_template
+from flask import Flask, request, redirect, session, render_template, g
 from werkzeug.utils import secure_filename
 import sqlite3
 import hashlib
@@ -10,14 +10,26 @@ app.secret_key = 'chave_secreta'
 UPLOAD_FOLDER = 'static/uploads'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
+
+# ---------- BANCO DE DADOS ----------
 def get_db():
-    conn = sqlite3.connect('noir.db')
-    conn.row_factory = sqlite3.Row
-    return conn
+    if 'db' not in g:
+        g.db = sqlite3.connect('noir.db', timeout=30, check_same_thread=False)
+        g.db.row_factory = sqlite3.Row
+        g.db.execute("PRAGMA journal_mode=WAL;")
+        g.db.execute("PRAGMA busy_timeout = 30000;")
+    return g.db
+
+
+@app.teardown_appcontext
+def close_db(exception):
+    db = g.pop('db', None)
+    if db is not None:
+        db.close()
 
 
 def init_db():
-    conn = get_db()
+    conn = sqlite3.connect('noir.db')
     cursor = conn.cursor()
 
     cursor.execute('''
@@ -40,12 +52,28 @@ def init_db():
             preco INTEGER NOT NULL,
             foto TEXT
         )
-    ''') 
+    ''')
 
-    try:
-        cursor.execute("ALTER TABLE usuarios ADD COLUMN is_admin INTEGER DEFAULT 0")
-    except sqlite3.OperationalError:
-        pass
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS carrinho (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            usuario_id INTEGER NOT NULL,
+            produto_id INTEGER NOT NULL,
+            quantidade INTEGER NOT NULL,
+            preco REAL NOT NULL,
+            cupom TEXT,
+            FOREIGN KEY(usuario_id) REFERENCES usuarios(id),
+            FOREIGN KEY(produto_id) REFERENCES produtos(produto_id)
+        )
+    ''')
+
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS cupom (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            cupom TEXT UNIQUE,
+            desconto REAL NOT NULL
+        )
+    ''')
 
     conn.commit()
     conn.close()
@@ -55,14 +83,15 @@ def hash_senha(senha):
     return hashlib.sha256(senha.encode()).hexdigest()
 
 
+# ---------- ROTAS ----------
 @app.route('/')
 def home():
-        return render_template(
-            'index.html',
-            logado=True,
-            usuario=session['usuario'] if 'usuario' in session else None,
-            is_admin=session.get('is_admin', False)
-        )
+    return render_template(
+        'index.html',
+        logado=True,
+        usuario=session['usuario'] if 'usuario' in session else None,
+        is_admin=session.get('is_admin', False)
+    )
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -78,7 +107,6 @@ def login():
             (email, hash_senha(senha))
         )
         usuario = cursor.fetchone()
-        conn.close()
 
         if usuario:
             session['usuario_id'] = usuario['id']
@@ -106,10 +134,8 @@ def cadastro():
                 (nome, email, hash_senha(senha))
             )
             conn.commit()
-            conn.close()
             return redirect('/login')
         except sqlite3.IntegrityError:
-            conn.close()
             return render_template('cadastro.html', erro="Email já existe!")
 
     return render_template('cadastro.html')
@@ -122,6 +148,9 @@ def produtos():
 
     if not session.get('is_admin', False):
         return "Acesso negado! Você precisa ser administrador.", 403
+
+    conn = get_db()
+    cursor = conn.cursor()
 
     if request.method == 'POST':
         nome = request.form['nome']
@@ -136,21 +165,187 @@ def produtos():
             foto_filename = secure_filename(foto.filename)
             foto.save(os.path.join(UPLOAD_FOLDER, foto_filename))
 
-        with sqlite3.connect('noir.db', timeout=10, check_same_thread=False) as conn:
-            cursor = conn.cursor()
-            cursor.execute(
-                "INSERT INTO produtos (nome, tipo, tamanho, quantidade, preco, foto) VALUES (?, ?, ?, ?, ?, ?)",
-                (nome, tipo, tamanho, quantidade, preco, foto_filename)
-            )
-            conn.commit()
+        cursor.execute(
+            "INSERT INTO produtos (nome, tipo, tamanho, quantidade, preco, foto) VALUES (?, ?, ?, ?, ?, ?)",
+            (nome, tipo, tamanho, quantidade, preco, foto_filename)
+        )
+        conn.commit()
 
-    with sqlite3.connect('noir.db', timeout=10, check_same_thread=False) as conn:
-        conn.row_factory = sqlite3.Row
-        cursor = conn.cursor()
-        cursor.execute("SELECT * FROM produtos ORDER BY produto_id DESC")
-        produtos_lista = cursor.fetchall()
+    cursor.execute("SELECT * FROM produtos ORDER BY produto_id DESC")
+    produtos_lista = cursor.fetchall()
 
     return render_template('produto.html', produtos=produtos_lista)
+
+
+@app.route("/remove_produto/<int:produto_id>", methods=['POST'])
+def remove_produto(produto_id):
+    if 'usuario_id' not in session or not session.get('is_admin', False):
+        return "Acesso negado! Você precisa ser administrador.", 403
+
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM produtos WHERE produto_id = ?", (produto_id,))
+    conn.commit()
+
+    return redirect('/produtos')
+
+
+@app.route('/carrinho')
+def carrinho():
+    if 'usuario_id' not in session:
+        return redirect('/login')
+
+    user_id = session['usuario_id']
+    conn = get_db()
+    conn.row_factory = sqlite3.Row
+    cur = conn.cursor()
+
+    cur.execute('''
+        SELECT c.id AS carrinho_id, c.usuario_id, c.produto_id, c.quantidade, c.preco, c.cupom,
+               p.nome, p.foto, p.tipo, p.tamanho
+        FROM carrinho c
+        JOIN produtos p ON c.produto_id = p.produto_id
+        WHERE c.usuario_id = ?
+        ORDER BY c.id DESC
+    ''', (user_id,))
+    rows = cur.fetchall()
+
+    itens = []
+    total_cents = 0
+    for r in rows:
+        item = dict(r)
+        item['preco_display'] = "{:.2f}".format(item['preco'] / 100.0)
+        item['subtotal_display'] = "{:.2f}".format((item['preco'] * item['quantidade']) / 100.0)
+        itens.append(item)
+        total_cents += item['preco'] * item['quantidade']
+
+    total_display = "{:.2f}".format(total_cents / 100.0)
+    cupom_aplicado = session.get('cupom_aplicado')
+    desconto = session.get('desconto', 0)
+    total_desconto_display = None
+    if desconto and total_cents > 0:
+        total_com_desconto = total_cents * (1 - desconto)
+        total_desconto_display = "{:.2f}".format(total_com_desconto / 100.0)
+
+    mensagem_cupom = session.pop('mensagem_cupom', None)
+
+    return render_template(
+        'carrinho.html',
+        itens=itens,
+        total_display=total_display,
+        total_desconto_display=total_desconto_display,
+        cupom_aplicado=cupom_aplicado,
+        mensagem_cupom=mensagem_cupom
+    )
+
+
+@app.route('/adicionar_ao_carrinho/<int:produto_id>', methods=['POST'])
+def adicionar_ao_carrinho(produto_id):
+    if 'usuario_id' not in session:
+        return redirect('/login')
+
+    user_id = session['usuario_id']
+    quantidade = int(request.form.get('quantidade', 1))
+    if quantidade < 1:
+        quantidade = 1
+
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute('SELECT produto_id, preco FROM produtos WHERE produto_id = ?', (produto_id,))
+    produto = cur.fetchone()
+    if not produto:
+        return "Produto não encontrado.", 404
+
+    preco_cents = produto['preco']
+    cur.execute('SELECT id, quantidade FROM carrinho WHERE usuario_id = ? AND produto_id = ?', (user_id, produto_id))
+    existente = cur.fetchone()
+
+    if existente:
+        nova_qtd = existente['quantidade'] + quantidade
+        cur.execute('UPDATE carrinho SET quantidade = ? WHERE id = ?', (nova_qtd, existente['id']))
+    else:
+        cur.execute(
+            'INSERT INTO carrinho (usuario_id, produto_id, quantidade, preco) VALUES (?, ?, ?, ?)',
+            (user_id, produto_id, quantidade, preco_cents)
+        )
+    conn.commit()
+
+    cupom_aplicado = session.get('cupom_aplicado')
+    desconto = session.get('desconto', 0)
+
+    total_desconto_display = None
+    if desconto and total_cents > 0:
+        total_com_desconto = total_cents * (1 - desconto)
+        total_desconto_display = "{:.2f}".format(total_com_desconto / 100.0)
+
+    return redirect('/carrinho')
+
+
+@app.route('/remover_do_carrinho/<int:carrinho_id>', methods=['POST'])
+def remover_do_carrinho(carrinho_id):
+    if 'usuario_id' not in session:
+        return redirect('/login')
+
+    user_id = session['usuario_id']
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute('DELETE FROM carrinho WHERE id = ? AND usuario_id = ?', (carrinho_id, user_id))
+    conn.commit()
+
+    return redirect('/carrinho')
+
+
+@app.route('/atualizar_carrinho/<int:carrinho_id>', methods=['POST'])
+def atualizar_carrinho(carrinho_id):
+    if 'usuario_id' not in session:
+        return redirect('/login')
+
+    try:
+        nova_qtd = int(request.form.get('quantidade', 1))
+    except ValueError:
+        nova_qtd = 1
+    if nova_qtd < 1:
+        nova_qtd = 1
+
+    user_id = session['usuario_id']
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute('UPDATE carrinho SET quantidade = ? WHERE id = ? AND usuario_id = ?', (nova_qtd, carrinho_id, user_id))
+    conn.commit()
+
+    return redirect('/carrinho')
+
+
+@app.route('/aplicar_cupom', methods=['POST'])
+def aplicar_cupom():
+    if 'usuario_id' not in session:
+        return redirect('/login')
+
+    codigo_cupom = request.form.get('cupom', '').strip().upper()
+    if not codigo_cupom:
+        return redirect('/carrinho')
+
+    user_id = session['usuario_id']
+    conn = get_db()
+    conn.row_factory = sqlite3.Row
+    cur = conn.cursor()
+
+    cur.execute('SELECT * FROM cupom WHERE UPPER(cupom) = ?', (codigo_cupom,))
+    cupom = cur.fetchone()
+
+    if not cupom:
+        session['mensagem_cupom'] = "Cupom inválido!"
+        return redirect('/carrinho')
+
+    desconto = float(cupom['desconto'])
+    cur.execute('UPDATE carrinho SET cupom = ? WHERE usuario_id = ?', (codigo_cupom, user_id))
+    conn.commit()
+
+    session['cupom_aplicado'] = codigo_cupom
+    session['desconto'] = desconto
+    session['mensagem_cupom'] = f"Cupom '{codigo_cupom}' aplicado! ({int(desconto * 100)}% de desconto)"
+
+    return redirect('/carrinho')
 
 
 @app.route('/logout')
