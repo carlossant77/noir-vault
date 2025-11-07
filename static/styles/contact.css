@@ -80,7 +80,7 @@
     width: 90px;
 }
 
-@media screen and (min-width: 425px) {
+@media screen and (min-width: 768px) {
     .contact-title {
         font-size: 100px;
         letter-spacing: 40px;
@@ -113,5 +113,60 @@
         padding-top: 8px;
         resize: none;
         height: 100px;
+    }
+}
+
+@media screen and (min-width: 1024px) {
+    .contact-section {
+        background-image: url(/static/assets/TalkToUs_Pc.png);
+        background-repeat: no-repeat;
+        background-size: 70%;
+        background-position: 0% 20%;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .contact-title {
+        font-size: 100px;
+        letter-spacing: 40px;
+        margin-top: 90px;
+        margin-left: 20px;
+        align-self: center;
+        text-align: left;
+    }
+
+    .form-inputs {
+        gap: 30px;
+        width: 460px;
+        margin-top: 140px;
+        margin-bottom: 0px;
+        margin-right: 40px;
+    }
+
+    .form-inputs input {
+        height: 60px;
+        border-radius: 4px;
+        padding-left: 8px;
+        color: #d7d7d7;
+        font-size: 20px;
+        font-weight: bolder;
+        opacity: 1;
+    }
+
+    .form-inputs input:focus {
+        background-color: #000000;
+    }
+
+    .form-inputs input:valid {
+        background-color: #000000;
+    }
+
+    .form-inputs textarea:focus {
+        background-color: #000000;
+    }
+
+    .form-inputs textarea:valid {
+        background-color: #000000;
     }
 }
