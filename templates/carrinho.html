@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seu Carrinho</title>
+</head>
+
+<body>
+    <h1>Seu Carrinho</h1>
+
+    {% if itens %}
+    {% for item in itens %}
+    <div class="item-carrinho">
+        <h3>{{ item.nome }}</h3>
+        <p>Preço: R$ {{ item.preco_display }}</p>
+        <p>Quantidade atual: {{ item.quantidade }}</p>
+        <p>Subtotal: R$ {{ item.subtotal_display }}</p>
+
+        <!-- Formulário para atualizar quantidade -->
+        <form action="/atualizar_carrinho/{{ item.carrinho_id }}" method="POST">
+            <input type="number" name="quantidade" value="{{ item.quantidade }}" min="1">
+            <button type="submit">Atualizar</button>
+        </form>
+
+        <!-- Formulário para remover item -->
+        <form action="/remover_do_carrinho/{{ item.carrinho_id }}" method="POST">
+            <button type="submit">Remover</button>
+        </form>
+
+        <hr>
+    </div>
+    {% endfor %}
+
+    <h2>Total: R$ {{ total_display }}</h2>
+
+    {% if total_desconto_display %}
+    <h3>Total com desconto: R$ {{ total_desconto_display }}</h3>
+    <p><strong>Cupom aplicado:</strong> {{ cupom_aplicado }}</p>
+    {% endif %}
+
+    <!-- Formulário para aplicar cupom -->
+    <form action="/aplicar_cupom" method="POST">
+        <input type="text" name="cupom" placeholder="Insira o cupom de desconto" required>
+        <button type="submit">Aplicar Cupom</button>
+    </form>
+
+    {% if mensagem_cupom %}
+    <p><strong>{{ mensagem_cupom }}</strong></p>
+    {% endif %}
+
+    {% else %}
+    <p>Seu carrinho está vazio.</p>
+    {% endif %}
+</body>
+
+</html>
