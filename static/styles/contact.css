@@ -24,14 +24,62 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
-    gap: 24px;
+    gap: 14px;
     width: 310px;
-    margin-top: 220px;
+    margin-top: 140px;
 }
 
 .form-inputs input {
     background-color: #343434;
+    font-family: 'Libre Baskerville', serif;
     border: none;
     height: 40px;
     border-radius: 4px;
+    padding-left: 8px;
+    color: #d7d7d7;
+}
+
+.form-inputs textarea {
+    background-color: #343434;
+    color: #d7d7d7;
+    font-family: 'Libre Baskerville', serif;
+    border-radius: 4px;
+    padding-left: 8px;
+    padding-top: 8px;
+    border: none;
+    resize: none;
+    height: 100px;
+}
+
+.form-inputs textarea::placeholder {
+    color: #d7d7d7;
+}
+
+.form-inputs input::placeholder {
+    color: #d7d7d7;
+}
+
+.form-inputs input:focus {
+    outline: none;
+}
+
+.form-inputs textarea:focus {
+    outline: none;
+}
+
+.form-inputs button {
+    background-color: #343434;
+    color: #d7d7d7;
+    font-family: 'Libre Baskerville', serif;
+    border: none;
+    border-radius: 4px;
+    align-self: flex-end;
+    height: 30px;
+    width: 90px;
+}
+
+@media screen and (min-width: 425px) {
+    .contact-section {
+        
+    }
 }
