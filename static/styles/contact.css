@@ -14,7 +14,7 @@
     font-family: 'Libre Baskerville', serif;
     font-size: 70px;
     letter-spacing: 20px;
-    margin-top: 90px;
+    margin-top: 80px;
     align-self: flex-end;
     text-align: end;
     font-weight: 100;
@@ -24,10 +24,9 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
-    gap: 14px;
+    gap: 20px;
     width: 310px;
-    margin-top: 120px;
-    margin-bottom: 78px;
+    margin-top: 10vh;
 }
 
 .form-inputs input {
@@ -180,7 +179,7 @@
         width: 100vw;
         background-image: url(/static/assets/TalkToUs_Pc.png);
         background-repeat: no-repeat;
-        background-size: 50%;
+        background-size: 60%;
         background-position: 0% 20%;
         flex-direction: row;
         justify-content: space-between;
