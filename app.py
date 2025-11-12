@@ -1,8 +1,9 @@
-from flask import Flask, request, redirect, session, render_template, g
+from flask import Flask, request, redirect, session, render_template, g, jsonify
 from werkzeug.utils import secure_filename
 import sqlite3
 import hashlib
 import os
+import requests # Importação necessária para a API ViaCEP
 
 app = Flask(__name__, template_folder='templates', static_folder='static')
 app.secret_key = 'chave_secreta'
@@ -357,6 +358,147 @@ def aplicar_cupom():
 def logout():
     session.clear()
     return redirect('/')
+
+
+# ---------- LÓGICA DE CÁLCULO DE FRETE (NOVA) ----------
+
+# Mapeamento de tipos de produtos para pesos (em kg)
+# Baseado no JS: roupas: 0.5, sneakers: 1.2, botas: 1.6, sapatos: 1.0, acessorios: 0.2
+PESOS_POR_TIPO = {
+    "BOTAS": 1.6,
+    "SNEAKERS": 1.2,
+    "SAPATOS": 1.0,
+    "ACESSORIOS": 0.2,
+    "CALÇA": 0.5,      # Mapeado de 'roupas'
+    "JAQUETA": 0.5,    # Mapeado de 'roupas'
+    "ROUPAS": 0.5,     # Genérico
+    "DEFAULT": 0.8     # Peso padrão se o tipo não for reconhecido
+}
+
+def get_peso_por_tipo(tipo_produto):
+    """Busca o peso com base no tipo do produto, normalizando o nome."""
+    tipo_normalizado = tipo_produto.upper().strip()
+    
+    # Mapeia tipos comuns de 'roupas' para a categoria principal
+    if tipo_normalizado in ["CALÇA", "JAQUETA", "CAMISETA", "MOLETOM"]:
+        return PESOS_POR_TIPO["ROUPAS"]
+        
+    # Retorna o peso se encontrado, senão usa o padrão
+    return PESOS_POR_TIPO.get(tipo_normalizado, PESOS_POR_TIPO["DEFAULT"])
+
+def obter_regiao(uf):
+    """Retorna a região com base na UF (Estado)."""
+    regioes = {
+        "Norte": ["AC", "AP", "AM", "PA", "RO", "RR", "TO"],
+        "Nordeste": ["AL", "BA", "CE", "MA", "PB", "PE", "PI", "RN", "SE"],
+        "Centro-Oeste": ["DF", "GO", "MT", "MS"],
+        "Sudeste": ["ES", "MG", "RJ", "SP"],
+        "Sul": ["PR", "RS", "SC"]
+    }
+    for regiao, estados in regioes.items():
+        if uf in estados:
+            return regiao
+    return "Desconhecida"
+
+def obter_fator(regiao):
+    """Retorna o fator multiplicador do frete com base na região."""
+    fatores = {
+        "Sudeste": 1.0,
+        "Sul": 1.1,
+        "Centro-Oeste": 1.25,
+        "Nordeste": 1.4,
+        "Norte": 1.6,
+        "Desconhecida": 1.8 # Fator padrão
+    }
+    return fatores.get(regiao, 1.8)
+
+
+@app.route('/calcular_frete', methods=['POST'])
+def calcular_frete_api():
+    """
+    Nova rota de API para calcular o frete.
+    Busca automaticamente os itens do carrinho do usuário logado.
+    Recebe apenas o 'cep' via POST form.
+    """
+    if 'usuario_id' not in session:
+        return jsonify({"erro": "Usuário não logado"}), 401
+
+    # Pega o CEP do formulário e limpa (remove não-dígitos)
+    cep = request.form.get('cep', '')
+    cep_limpo = ''.join(filter(str.isdigit, cep))
+
+    if len(cep_limpo) != 8:
+        return jsonify({"erro": "CEP inválido. Forneça 8 dígitos."}), 400
+
+    user_id = session['usuario_id']
+    conn = get_db()
+    cur = conn.cursor()
+
+    # 1. Buscar itens do carrinho e juntar com produtos para obter tipo, preco e quantidade
+    cur.execute('''
+        SELECT p.tipo, p.nome, c.quantidade, c.preco
+        FROM carrinho c
+        JOIN produtos p ON c.produto_id = p.produto_id
+        WHERE c.usuario_id = ?
+    ''', (user_id,))
+    itens_carrinho = cur.fetchall()
+
+    if not itens_carrinho:
+        return jsonify({"erro": "Seu carrinho está vazio"}), 400
+
+    # Calcula peso total e valor total (em centavos)
+    peso_total_kg = 0.0
+    valor_pedido_total_cents = 0
+
+    for item in itens_carrinho:
+        peso_item = get_peso_por_tipo(item['tipo'])
+        peso_total_kg += peso_item * item['quantidade']
+        valor_pedido_total_cents += item['preco'] * item['quantidade'] # Preço já está em centavos
+
+    # 2. Chamar API ViaCEP
+    try:
+        res = requests.get(f"https://viacep.com.br/ws/{cep_limpo}/json/")
+        res.raise_for_status() # Lança exceção para erros HTTP (4xx, 5xx)
+        dados_cep = res.json()
+        
+        if dados_cep.get('erro'):
+            return jsonify({"erro": "CEP não encontrado"}), 404
+            
+    except requests.RequestException as e:
+        print(f"Erro na API ViaCEP: {e}")
+        return jsonify({"erro": "Não foi possível consultar o CEP. Tente novamente."}), 500
+
+    # 3. Calcular Região e Fator
+    uf = dados_cep.get('uf')
+    regiao = obter_regiao(uf)
+    fator = obter_fator(regiao)
+
+    # 4. Calcular Frete
+    # Fórmula baseada no JS: (pesoTotal * 5) * fator
+    # Calculamos tudo em centavos
+    frete_cents = int((peso_total_kg * 5) * fator * 100)
+
+    # Frete grátis (JS usava 15000. Assumindo R$ 150,00 ou 15000 centavos)
+    if valor_pedido_total_cents >= 15000:
+        frete_cents = 0
+        
+    frete_gratis = (frete_cents == 0)
+
+    # 5. Montar e retornar o JSON
+    resultado = {
+        "cidade": dados_cep.get('localidade'),
+        "uf": uf,
+        "regiao": regiao,
+        "cep": dados_cep.get('cep'),
+        "peso_total_kg": round(peso_total_kg, 2),
+        "valor_pedido_reais": round(valor_pedido_total_cents / 100.0, 2),
+        "valor_frete_reais": round(frete_cents / 100.0, 2),
+        "frete_gratis": frete_gratis,
+        "mensagem_frete": "Grátis 🎉" if frete_gratis else f"R$ {round(frete_cents / 100.0, 2):.2f}"
+    }
+
+    return jsonify(resultado)
+
 
 
 if __name__ == '__main__':
