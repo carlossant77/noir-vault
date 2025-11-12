@@ -114,45 +114,6 @@ def cadastro():
 
     return render_template('cadastro.html')
 
-
-@app.route('/produtos', methods=['GET', 'POST'])
-def produtos():
-    if 'usuario_id' not in session:
-        return redirect('/login')
-
-    if not session.get('is_admin', False):
-        return "Acesso negado! Você precisa ser administrador.", 403
-
-    if request.method == 'POST':
-        nome = request.form['nome']
-        tipo = request.form['tipo']
-        tamanho = request.form.get('tamanho', '')
-        quantidade = int(request.form['quantidade'])
-        preco = int(float(request.form['preco'].replace(',', '.')) * 100)
-
-        foto = request.files.get('foto')
-        foto_filename = None
-        if foto and foto.filename != '':
-            foto_filename = secure_filename(foto.filename)
-            foto.save(os.path.join(UPLOAD_FOLDER, foto_filename))
-
-        with sqlite3.connect('noir.db', timeout=10, check_same_thread=False) as conn:
-            cursor = conn.cursor()
-            cursor.execute(
-                "INSERT INTO produtos (nome, tipo, tamanho, quantidade, preco, foto) VALUES (?, ?, ?, ?, ?, ?)",
-                (nome, tipo, tamanho, quantidade, preco, foto_filename)
-            )
-            conn.commit()
-
-    with sqlite3.connect('noir.db', timeout=10, check_same_thread=False) as conn:
-        conn.row_factory = sqlite3.Row
-        cursor = conn.cursor()
-        cursor.execute("SELECT * FROM produtos ORDER BY produto_id DESC")
-        produtos_lista = cursor.fetchall()
-
-    return render_template('produto.html', produtos=produtos_lista)
-
-
 @app.route('/logout')
 def logout():
     session.clear()
