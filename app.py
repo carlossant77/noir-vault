@@ -360,34 +360,26 @@ def logout():
     return redirect('/')
 
 
-# ---------- LÓGICA DE CÁLCULO DE FRETE (NOVA) ----------
-
-# Mapeamento de tipos de produtos para pesos (em kg)
-# Baseado no JS: roupas: 0.5, sneakers: 1.2, botas: 1.6, sapatos: 1.0, acessorios: 0.2
-PESOS_POR_TIPO = {
-    "BOTAS": 1.6,
-    "SNEAKERS": 1.2,
-    "SAPATOS": 1.0,
-    "ACESSORIOS": 0.2,
-    "CALÇA": 0.5,      # Mapeado de 'roupas'
-    "JAQUETA": 0.5,    # Mapeado de 'roupas'
-    "ROUPAS": 0.5,     # Genérico
-    "DEFAULT": 0.8     # Peso padrão se o tipo não for reconhecido
+categoria= {
+    "CALÇADOS": 1.2,
+    "ACESSORIOS": 0.3,
+    "CALÇA": 0.8,     
+    "JAQUETA": 0.8,    
+    "ROUPA": 0.8,     
+    "DEFAULT": 0.8     
 }
 
 def get_peso_por_tipo(tipo_produto):
-    """Busca o peso com base no tipo do produto, normalizando o nome."""
     tipo_normalizado = tipo_produto.upper().strip()
     
     # Mapeia tipos comuns de 'roupas' para a categoria principal
     if tipo_normalizado in ["CALÇA", "JAQUETA", "CAMISETA", "MOLETOM"]:
-        return PESOS_POR_TIPO["ROUPAS"]
+        return categoria["ROUPA"]
         
     # Retorna o peso se encontrado, senão usa o padrão
-    return PESOS_POR_TIPO.get(tipo_normalizado, PESOS_POR_TIPO["DEFAULT"])
+    return categoria.get(tipo_normalizado, categoria["DEFAULT"])
 
 def obter_regiao(uf):
-    """Retorna a região com base na UF (Estado)."""
     regioes = {
         "Norte": ["AC", "AP", "AM", "PA", "RO", "RR", "TO"],
         "Nordeste": ["AL", "BA", "CE", "MA", "PB", "PE", "PI", "RN", "SE"],
@@ -401,7 +393,6 @@ def obter_regiao(uf):
     return "Desconhecida"
 
 def obter_fator(regiao):
-    """Retorna o fator multiplicador do frete com base na região."""
     fatores = {
         "Sudeste": 1.0,
         "Sul": 1.1,
@@ -415,11 +406,7 @@ def obter_fator(regiao):
 
 @app.route('/calcular_frete', methods=['POST'])
 def calcular_frete_api():
-    """
-    Nova rota de API para calcular o frete.
-    Busca automaticamente os itens do carrinho do usuário logado.
-    Recebe apenas o 'cep' via POST form.
-    """
+
     if 'usuario_id' not in session:
         return jsonify({"erro": "Usuário não logado"}), 401
 
@@ -455,7 +442,9 @@ def calcular_frete_api():
         peso_total_kg += peso_item * item['quantidade']
         valor_pedido_total_cents += item['preco'] * item['quantidade'] # Preço já está em centavos
 
-    # 2. Chamar API ViaCEP
+    desconto = session.get('desconto', 0)
+    if desconto > 0:
+        valor_pedido_total_cents = int(valor_pedido_total_cents * (1 - desconto))
     try:
         res = requests.get(f"https://viacep.com.br/ws/{cep_limpo}/json/")
         res.raise_for_status() # Lança exceção para erros HTTP (4xx, 5xx)
@@ -468,23 +457,17 @@ def calcular_frete_api():
         print(f"Erro na API ViaCEP: {e}")
         return jsonify({"erro": "Não foi possível consultar o CEP. Tente novamente."}), 500
 
-    # 3. Calcular Região e Fator
     uf = dados_cep.get('uf')
     regiao = obter_regiao(uf)
     fator = obter_fator(regiao)
 
-    # 4. Calcular Frete
-    # Fórmula baseada no JS: (pesoTotal * 5) * fator
-    # Calculamos tudo em centavos
     frete_cents = int((peso_total_kg * 5) * fator * 100)
 
-    # Frete grátis (JS usava 15000. Assumindo R$ 150,00 ou 15000 centavos)
     if valor_pedido_total_cents >= 15000:
         frete_cents = 0
         
     frete_gratis = (frete_cents == 0)
 
-    # 5. Montar e retornar o JSON
     resultado = {
         "cidade": dados_cep.get('localidade'),
         "uf": uf,
@@ -494,12 +477,12 @@ def calcular_frete_api():
         "valor_pedido_reais": round(valor_pedido_total_cents / 100.0, 2),
         "valor_frete_reais": round(frete_cents / 100.0, 2),
         "frete_gratis": frete_gratis,
-        "mensagem_frete": "Grátis 🎉" if frete_gratis else f"R$ {round(frete_cents / 100.0, 2):.2f}"
+        "mensagem_frete": "Grátis 🎉" if frete_gratis else f"R$ {round(frete_cents / 100.0, 2):.2f}",
+        "cupom_aplicado": session.get('cupom_aplicado'),  # ✅ Adiciona informação do cupom
+        "desconto_aplicado": int(desconto * 100) if desconto > 0 else 0  # ✅ Adiciona percentual de desconto
     }
 
     return jsonify(resultado)
-
-
 
 if __name__ == '__main__':
     init_db()
