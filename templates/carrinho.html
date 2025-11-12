@@ -17,14 +17,12 @@
         <p>Preço: R$ {{ item.preco_display }}</p>
         <p>Quantidade atual: {{ item.quantidade }}</p>
         <p>Subtotal: R$ {{ item.subtotal_display }}</p>
-
-        <!-- Formulário para atualizar quantidade -->
+>
         <form action="/atualizar_carrinho/{{ item.carrinho_id }}" method="POST">
             <input type="number" name="quantidade" value="{{ item.quantidade }}" min="1">
             <button type="submit">Atualizar</button>
         </form>
 
-        <!-- Formulário para remover item -->
         <form action="/remover_do_carrinho/{{ item.carrinho_id }}" method="POST">
             <button type="submit">Remover</button>
         </form>
@@ -40,9 +38,8 @@
     <p><strong>Cupom aplicado:</strong> {{ cupom_aplicado }}</p>
     {% endif %}
 
-    <!-- Formulário para aplicar cupom -->
     <form action="/aplicar_cupom" method="POST">
-        <input type="text" name="cupom" placeholder="Insira o cupom de desconto" required>
+        <input type="text" name="cupom" placeholder="Insira o cupom de desconto">
         <button type="submit">Aplicar Cupom</button>
     </form>
 
@@ -53,6 +50,24 @@
     {% else %}
     <p>Seu carrinho está vazio.</p>
     {% endif %}
+
+    <hr>
+    <h3>Calcular Frete</h3>
+
+    <div id="frete">
+        <form id="form-frete">
+            <label>CEP:
+                <input type="text" id="cep" name="cep" maxlength="9" placeholder="00000-000" required>
+            </label>
+
+            <button type="submit">Calcular Frete</button>
+        </form>
+
+        <div id="resultado" style="margin-top: 10px; font-weight: bold;"></div>
+    </div>
+
+    <script src="/static/scripts/calcular_frete.js"></script>
+    
 </body>
 
 </html>
