@@ -1,78 +1,62 @@
-const pesos = {
-    roupas: 0.5,
-    sneakers: 1.2,
-    botas: 1.6,
-    sapatos: 1.0,
-    acessorios: 0.2
-};
+document.addEventListener('DOMContentLoaded', function () {
 
-async function calcularFrete() {
-    const categoria = document.getElementById('categoria').value;
-    const quantidade = parseInt(document.getElementById('quantidade').value);
-    const valorPedido = parseFloat(document.getElementById('valorPedido').value);
-    const cep = document.getElementById('cep').value.replace(/\D/g, '');
-    const resultado = document.getElementById('resultado');
+    // Encontra o formulário de frete
+    const formFrete = document.getElementById('form-frete');
 
-    if (!categoria || isNaN(quantidade) || isNaN(valorPedido) || cep.length !== 8) {
-        resultado.innerHTML = "Preencha todos os campos corretamente!";
+    // Se o formulário não existir na página, não faz nada
+    if (!formFrete) {
         return;
     }
 
-    try {
-        const res = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
-        const dados = await res.json();
+    // Adiciona o listener de 'submit' ao formulário
+    formFrete.addEventListener('submit', async function (event) {
+        // Previne o envio padrão do formulário
+        event.preventDefault();
 
-        if (dados.erro) {
-            resultado.innerHTML = "CEP não encontrado!";
-            return;
+        const cepInput = document.getElementById('cep');
+        const resultadoDiv = document.getElementById('resultado');
+
+        // Pega o valor do CEP
+        const cep = cepInput.value;
+
+        // Mostra mensagem de carregamento
+        resultadoDiv.style.color = 'black';
+        resultadoDiv.innerHTML = "Calculando...";
+
+        // Prepara os dados para enviar (necessário para o request.form['cep'] no Flask)
+        const formData = new FormData();
+        formData.append('cep', cep);
+
+        try {
+            // Faz a chamada 'fetch' para a rota do Flask
+            const response = await fetch('/calcular_frete', {
+                method: 'POST',
+                body: formData
+            });
+
+            // Converte a resposta para JSON
+            const data = await response.json();
+
+            // Se o Flask retornou um erro (ex: CEP inválido, carrinho vazio)
+            if (data.erro) {
+                resultadoDiv.style.color = 'red';
+                resultadoDiv.innerHTML = `<p>Erro: ${data.erro}</p>`;
+            } else {
+                // Se deu tudo certo, exibe os resultados
+                resultadoDiv.style.color = 'green';
+                resultadoDiv.innerHTML = `
+                    <p><b>Cidade:</b> ${data.cidade} - ${data.uf} (Região: ${data.regiao})</p>
+                    <p><b>Peso Total:</b> ${data.peso_total_kg} kg</p>
+                    <p><b>Valor Pedido:</b> R$ ${data.valor_pedido_reais.toFixed(2)}</p>
+                    <p><b>Frete:</b> ${data.mensagem_frete}</p>
+                `;
+            }
+
+        } catch (error) {
+            // Erro de rede ou falha na chamada
+            console.error("Erro ao calcular frete:", error);
+            resultadoDiv.style.color = 'red';
+            resultadoDiv.innerHTML = "<p>Não foi possível calcular o frete. Tente novamente.</p>";
         }
-
-        const uf = dados.uf;
-        const regiao = obterRegiao(uf);
-        const fator = obterFator(regiao);
-
-        const pesoTotal = pesos[categoria] * quantidade;
-        let frete = (pesoTotal * 5) * fator;
-
-        if (valorPedido >= 15000) {
-            frete = 0;
-        }
-
-        resultado.innerHTML = `
-          <p><b>Cidade:</b> ${dados.localidade} - ${uf}</p>
-          <p><b>Região:</b> ${regiao}</p>
-          <p><b>Categoria:</b> ${categoria.charAt(0).toUpperCase() + categoria.slice(1)}</p>
-          <p><b>Quantidade:</b> ${quantidade}</p>
-          <p><b>Peso total:</b> ${pesoTotal.toFixed(2)} kg</p>
-          <p><b>Valor do pedido:</b> R$ ${valorPedido.toFixed(2)}</p>
-          <p><b>Frete:</b> ${frete === 0 ? "Grátis 🎉" : "R$ " + frete.toFixed(2)}</p>
-        `;
-    } catch (error) {
-        resultado.innerHTML = "Erro ao buscar o CEP!";
-    }
-}
-
-function obterRegiao(uf) {
-    const regioes = {
-        "Norte": ["AC", "AP", "AM", "PA", "RO", "RR", "TO"],
-        "Nordeste": ["AL", "BA", "CE", "MA", "PB", "PE", "PI", "RN", "SE"],
-        "Centro-Oeste": ["DF", "GO", "MT", "MS"],
-        "Sudeste": ["ES", "MG", "RJ", "SP"],
-        "Sul": ["PR", "RS", "SC"]
-    };
-    for (const [regiao, estados] of Object.entries(regioes)) {
-        if (estados.includes(uf)) return regiao;
-    }
-    return "Desconhecida";
-}
-
-function obterFator(regiao) {
-    switch (regiao) {
-        case "Sudeste": return 1.0;
-        case "Sul": return 1.1;
-        case "Centro-Oeste": return 1.25;
-        case "Nordeste": return 1.4;
-        case "Norte": return 1.6;
-        default: return 1.8;
-    }
-}
+    });
+});
