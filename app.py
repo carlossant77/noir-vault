@@ -4,6 +4,7 @@ import sqlite3
 import hashlib
 import os
 import requests # Importação necessária para a API ViaCEP
+import re # Para validar a avaliação
 
 app = Flask(__name__, template_folder='templates', static_folder='static')
 app.secret_key = 'chave_secreta'
@@ -33,6 +34,7 @@ def init_db():
     conn = sqlite3.connect('noir.db')
     cursor = conn.cursor()
 
+    # Tabela usuários
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS usuarios (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -43,6 +45,7 @@ def init_db():
         )
     ''')
 
+    # Tabela produtos (Adicionado descricao e tamanho_disponivel)
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS produtos (
             produto_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -51,10 +54,26 @@ def init_db():
             tamanho TEXT NOT NULL,
             quantidade INTEGER NOT NULL,
             preco INTEGER NOT NULL,
-            foto TEXT
+            foto TEXT,
+            descricao TEXT, 
+            tamanhos_disponiveis TEXT DEFAULT 'PP,P,M,G,GG'
+        )
+    ''')
+    
+    # Tabela avaliações (Nova tabela)
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS avaliacoes (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            usuario_id INTEGER NOT NULL,
+            produto_id INTEGER NOT NULL,
+            nota REAL NOT NULL, -- Nota de 0 a 5
+            FOREIGN KEY(usuario_id) REFERENCES usuarios(id),
+            FOREIGN KEY(produto_id) REFERENCES produtos(produto_id),
+            UNIQUE(usuario_id, produto_id) -- Garante apenas 1 avaliação por usuário/produto
         )
     ''')
 
+    # Tabela carrinho (CORREÇÃO: Adicionada a coluna tamanho_selecionado)
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS carrinho (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -63,11 +82,13 @@ def init_db():
             quantidade INTEGER NOT NULL,
             preco REAL NOT NULL,
             cupom TEXT,
+            tamanho_selecionado TEXT, -- NOVO CAMPO PARA O TAMANHO SELECIONADO
             FOREIGN KEY(usuario_id) REFERENCES usuarios(id),
             FOREIGN KEY(produto_id) REFERENCES produtos(produto_id)
         )
     ''')
 
+    # Tabela cupom
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS cupom (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -75,7 +96,25 @@ def init_db():
             desconto REAL NOT NULL
         )
     ''')
-
+    
+    # Adiciona a coluna 'descricao' se não existir
+    try:
+        cursor.execute("SELECT descricao FROM produtos LIMIT 1")
+    except sqlite3.OperationalError:
+        cursor.execute("ALTER TABLE produtos ADD COLUMN descricao TEXT")
+    
+    # Adiciona a coluna 'tamanhos_disponiveis' se não existir
+    try:
+        cursor.execute("SELECT tamanhos_disponiveis FROM produtos LIMIT 1")
+    except sqlite3.OperationalError:
+        cursor.execute("ALTER TABLE produtos ADD COLUMN tamanhos_disponiveis TEXT DEFAULT 'PP,P,M,G,GG'")
+        
+    # Adiciona a coluna 'tamanho_selecionado' na tabela carrinho se não existir (CORREÇÃO)
+    try:
+        cursor.execute("SELECT tamanho_selecionado FROM carrinho LIMIT 1")
+    except sqlite3.OperationalError:
+        cursor.execute("ALTER TABLE carrinho ADD COLUMN tamanho_selecionado TEXT")
+        
     conn.commit()
     conn.close()
 
@@ -84,13 +123,126 @@ def hash_senha(senha):
     return hashlib.sha256(senha.encode()).hexdigest()
 
 
-# ---------- ROTAS ----------
+# Função auxiliar para obter a avaliação média
+def get_media_avaliacao(produto_id):
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("SELECT AVG(nota) as media, COUNT(nota) as total FROM avaliacoes WHERE produto_id = ?", (produto_id,))
+    resultado = cursor.fetchone()
+    if resultado and resultado['total'] > 0:
+        return round(resultado['media'], 1), resultado['total']
+    return 0.0, 0
+
+
+# ---------- ROTAS DE PRODUTO INDIVIDUAL E AVALIAÇÃO ----------
+
+@app.route('/produto/<int:produto_id>')
+def detalhe_produto(produto_id):
+    conn = get_db()
+    cursor = conn.cursor()
+    
+    # Busca o produto
+    cursor.execute("SELECT * FROM produtos WHERE produto_id = ?", (produto_id,))
+    produto = cursor.fetchone()
+
+    if not produto:
+        return "Produto não encontrado", 404
+
+    # Calcula a média de avaliações
+    media, total_avaliacoes = get_media_avaliacao(produto_id)
+    
+    # Prepara os dados para o template
+    produto_dict = dict(produto)
+    produto_dict['preco_display'] = "{:.2f}".format(produto_dict['preco'] / 100.0)
+    produto_dict['media_avaliacao'] = media
+    produto_dict['total_avaliacoes'] = total_avaliacoes
+    produto_dict['tamanhos'] = produto_dict['tamanhos_disponiveis'].split(',')
+
+    # Verifica a avaliação do usuário logado, se houver
+    avaliacao_usuario = None
+    if 'usuario_id' in session:
+        usuario_id = session['usuario_id']
+        cursor.execute(
+            "SELECT nota FROM avaliacoes WHERE usuario_id = ? AND produto_id = ?",
+            (usuario_id, produto_id)
+        )
+        user_rating = cursor.fetchone()
+        if user_rating:
+            avaliacao_usuario = user_rating['nota']
+
+    return render_template(
+        'produto.html',
+        produto=produto_dict,
+        logado='usuario_id' in session,
+        usuario=session.get('usuario'),
+        is_admin=session.get('is_admin', False),
+        avaliacao_usuario=avaliacao_usuario # Avaliação anterior do usuário
+    )
+
+
+@app.route('/avaliar_produto/<int:produto_id>', methods=['POST'])
+def avaliar_produto(produto_id):
+    if 'usuario_id' not in session:
+        return jsonify({"erro": "Você precisa estar logado para avaliar."}), 401
+
+    try:
+        # A nota vem como string do JS, ex: "3.5"
+        nota_str = request.form.get('nota')
+        
+        # 1. Validação do formato: 0 a 5, apenas .5 de casa decimal (ex: 1, 1.5, 2, 2.5, ..., 5)
+        # O regex verifica se a string é:
+        # - Um dígito de 0 a 4, opcionalmente seguido por .5 (ex: "3.5", "4")
+        # - Ou exatamente 5 (ex: "5")
+        if not re.fullmatch(r"([0-4](\.5)?)|\s*5\s*", nota_str.strip()):
+            return jsonify({"erro": "Nota inválida. Use valores de 0 a 5, com incrementos de 0.5 (ex: 1, 1.5, 3.5)."}), 400
+            
+        nota = float(nota_str)
+        
+        # 2. Validação do valor (redundante, mas seguro)
+        if not (0.0 <= nota <= 5.0):
+            return jsonify({"erro": "Nota deve estar entre 0 e 5."}), 400
+
+    except ValueError:
+        return jsonify({"erro": "Formato de nota inválido."}), 400
+
+    usuario_id = session['usuario_id']
+    conn = get_db()
+    cursor = conn.cursor()
+
+    try:
+        # Tenta inserir (se o usuário ainda não avaliou) ou atualizar (se já avaliou)
+        # Usamos INSERT OR REPLACE para garantir que cada usuário só tenha uma avaliação por produto
+        cursor.execute(
+            "INSERT OR REPLACE INTO avaliacoes (usuario_id, produto_id, nota) VALUES (?, ?, ?)",
+            (usuario_id, produto_id, nota)
+        )
+        conn.commit()
+
+        # Recalcula a média após a inserção/atualização
+        media_nova, total_avaliacoes_novo = get_media_avaliacao(produto_id)
+
+        return jsonify({
+            "sucesso": True,
+            "mensagem": "Avaliação salva com sucesso!",
+            "media_avaliacao": media_nova,
+            "total_avaliacoes": total_avaliacoes_novo
+        })
+
+    except Exception as e:
+        print(f"Erro ao salvar avaliação: {e}")
+        return jsonify({"erro": "Erro interno ao salvar a avaliação."}), 500
+
+
+# ---------- ROTAS EXISTENTES (Ajustadas para a nova estrutura de produtos e carrinho) ----------
+
 @app.route('/')
 def home():
+    # CORREÇÃO: A rota home estava assumindo que o usuário estava sempre logado (logado=True),
+    # mas o template deve verificar a sessão.
     return render_template(
         'index.html',
-        logado=True,
-        usuario=session['usuario'] if 'usuario' in session else None,
+        logado='usuario_id' in session, # Corrigido para verificar a sessão
+        usuario=session.get('usuario'),
         is_admin=session.get('is_admin', False)
     )
 
@@ -142,7 +294,7 @@ def cadastro():
     return render_template('cadastro.html')
 
 
-@app.route('/produtos', methods=['GET', 'POST'])
+@app.route('/prateleira', methods=['GET', 'POST'])
 def produtos():
     if 'usuario_id' not in session:
         return redirect('/login')
@@ -156,9 +308,11 @@ def produtos():
     if request.method == 'POST':
         nome = request.form['nome']
         tipo = request.form['tipo']
-        tamanho = request.form.get('tamanho', '')
+        tamanho = request.form.get('tamanho', '') # Tamanho padrão (apenas para a lista de produtos)
         quantidade = int(request.form['quantidade'])
         preco = int(float(request.form['preco'].replace(',', '.')) * 100)
+        descricao = request.form.get('descricao', '') 
+        tamanhos_disponiveis = request.form.get('tamanhos_disponiveis', 'PP,P,M,G,GG') 
 
         foto = request.files.get('foto')
         foto_filename = None
@@ -167,15 +321,15 @@ def produtos():
             foto.save(os.path.join(UPLOAD_FOLDER, foto_filename))
 
         cursor.execute(
-            "INSERT INTO produtos (nome, tipo, tamanho, quantidade, preco, foto) VALUES (?, ?, ?, ?, ?, ?)",
-            (nome, tipo, tamanho, quantidade, preco, foto_filename)
+            "INSERT INTO produtos (nome, tipo, tamanho, quantidade, preco, foto, descricao, tamanhos_disponiveis) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+            (nome, tipo, tamanho, quantidade, preco, foto_filename, descricao, tamanhos_disponiveis)
         )
         conn.commit()
 
     cursor.execute("SELECT * FROM produtos ORDER BY produto_id DESC")
     produtos_lista = cursor.fetchall()
 
-    return render_template('produto.html', produtos=produtos_lista)
+    return render_template('prateleira.html', produtos=produtos_lista)
 
 
 @app.route("/remove_produto/<int:produto_id>", methods=['POST'])
@@ -185,10 +339,12 @@ def remove_produto(produto_id):
 
     conn = get_db()
     cursor = conn.cursor()
+    # Remove as avaliações antes do produto para evitar erro de FK
+    cursor.execute("DELETE FROM avaliacoes WHERE produto_id = ?", (produto_id,))
     cursor.execute("DELETE FROM produtos WHERE produto_id = ?", (produto_id,))
     conn.commit()
 
-    return redirect('/produtos')
+    return redirect('/prateleira')
 
 
 @app.route('/carrinho')
@@ -201,10 +357,10 @@ def carrinho():
     conn.row_factory = sqlite3.Row
     cur = conn.cursor()
 
-    # Pega todos os itens do carrinho do usuário
+    # Pega todos os itens do carrinho do usuário (CORREÇÃO: Buscando tamanho_selecionado)
     cur.execute('''
         SELECT c.id AS carrinho_id, c.usuario_id, c.produto_id, c.quantidade, c.preco, c.cupom,
-               p.nome, p.foto, p.tipo, p.tamanho
+               p.nome, p.foto, p.tipo, p.tamanho, c.tamanho_selecionado
         FROM carrinho c
         JOIN produtos p ON c.produto_id = p.produto_id
         WHERE c.usuario_id = ?
@@ -252,6 +408,12 @@ def adicionar_ao_carrinho(produto_id):
     quantidade = int(request.form.get('quantidade', 1))
     if quantidade < 1:
         quantidade = 1
+        
+    tamanho_selecionado = request.form.get('tamanho_selecionado')
+    if not tamanho_selecionado:
+        # Se o tamanho não for selecionado, redireciona para a página do produto (CORREÇÃO)
+        return redirect(f'/produto/{produto_id}')
+
 
     conn = get_db()
     cur = conn.cursor()
@@ -261,17 +423,26 @@ def adicionar_ao_carrinho(produto_id):
         return "Produto não encontrado.", 404
 
     preco_cents = produto['preco']
-    cur.execute('SELECT id, quantidade FROM carrinho WHERE usuario_id = ? AND produto_id = ?', (user_id, produto_id))
+    
+    # CORREÇÃO CRÍTICA: Busca por produto_id E tamanho_selecionado para permitir
+    # o mesmo produto em tamanhos diferentes como itens separados.
+    cur.execute(
+        'SELECT id, quantidade FROM carrinho WHERE usuario_id = ? AND produto_id = ? AND tamanho_selecionado = ?', 
+        (user_id, produto_id, tamanho_selecionado)
+    )
     existente = cur.fetchone()
 
     if existente:
+        # Se o item do MESMO TAMANHO já existir, atualiza a quantidade.
         nova_qtd = existente['quantidade'] + quantidade
         cur.execute('UPDATE carrinho SET quantidade = ? WHERE id = ?', (nova_qtd, existente['id']))
     else:
+        # Insere um novo item (com tamanho_selecionado)
         cur.execute(
-            'INSERT INTO carrinho (usuario_id, produto_id, quantidade, preco) VALUES (?, ?, ?, ?)',
-            (user_id, produto_id, quantidade, preco_cents)
+            'INSERT INTO carrinho (usuario_id, produto_id, quantidade, preco, tamanho_selecionado) VALUES (?, ?, ?, ?, ?)',
+            (user_id, produto_id, quantidade, preco_cents, tamanho_selecionado)
         )
+    
     conn.commit()
 
     # Mantém o cupom ativo na sessão, mas sem recalcular aqui
@@ -364,7 +535,7 @@ categoria= {
     "CALÇADOS": 1.2,
     "ACESSORIOS": 0.3,
     "CALÇA": 0.8,     
-    "JAQUETA": 0.8,    
+    "JAQUETA": 0.8,     
     "ROUPA": 0.8,     
     "DEFAULT": 0.8     
 }
@@ -445,6 +616,7 @@ def calcular_frete_api():
     desconto = session.get('desconto', 0)
     if desconto > 0:
         valor_pedido_total_cents = int(valor_pedido_total_cents * (1 - desconto))
+        
     try:
         res = requests.get(f"https://viacep.com.br/ws/{cep_limpo}/json/")
         res.raise_for_status() # Lança exceção para erros HTTP (4xx, 5xx)
@@ -478,12 +650,34 @@ def calcular_frete_api():
         "valor_frete_reais": round(frete_cents / 100.0, 2),
         "frete_gratis": frete_gratis,
         "mensagem_frete": "Grátis 🎉" if frete_gratis else f"R$ {round(frete_cents / 100.0, 2):.2f}",
-        "cupom_aplicado": session.get('cupom_aplicado'),  # ✅ Adiciona informação do cupom
-        "desconto_aplicado": int(desconto * 100) if desconto > 0 else 0  # ✅ Adiciona percentual de desconto
+        "cupom_aplicado": session.get('cupom_aplicado'),
+        "desconto_aplicado": int(desconto * 100) if desconto > 0 else 0
     }
 
     return jsonify(resultado)
 
 if __name__ == '__main__':
-    init_db()
+    # Garante que as tabelas estejam corretas e as colunas adicionais existam
+    with app.app_context():
+        init_db()
+        # Adiciona um produto de exemplo se a tabela estiver vazia
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute("SELECT COUNT(*) FROM produtos")
+        if cursor.fetchone()[0] == 0:
+            cursor.execute("""
+                INSERT INTO produtos (nome, tipo, tamanho, quantidade, preco, foto, descricao, tamanhos_disponiveis) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            """, (
+                "Bota Monolith Noir",
+                "CALÇADOS",
+                "40",
+                10,
+                39999, # R$ 399,99
+                "bota-monolith.png", # Use um nome de arquivo de imagem existente ou um placeholder
+                "A Bota Monolith é a peça-chave para um visual dark e moderno, construída com couro premium e sola tratorada robusta.",
+                "35,36,37,38,39,40,41"
+            ))
+            db.commit()
+
     app.run(debug=True)
