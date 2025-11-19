@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="/static/styles/index.css" />
     <link rel="stylesheet" href="/static/styles/hero.css" />
     <link rel="stylesheet" href="/static/styles/contact.css" />
-    <link rel="stylesheet" href="/static/styles/modal.css">
+    <link rel="stylesheet" href="/static/styles/modal.css" />
     <link rel="shortcut icon" href="/favicon/logo.png" type="image/x-icon" />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -39,7 +39,7 @@
         <article>
           <h3>PERFIL</h3>
           <p>Acesso ao perfil disponível apenas para usuários cadastrados</p>
-          <hr/>
+          <hr />
           <p>
             Para visualizar seu perfil, é necessário criar uma conta em nossa
             plataforma. O cadastro é simples e garante acesso a todos os
@@ -94,28 +94,20 @@
           <a href="" class="invisible">BOTAS</a>
         </div>
         <div class="menu-icons">
-          <i
-            class="fa-solid fa-user"
-            id="icon"
-            onclick="redirect('perfil.html')"
-          ></i>
+          <a href="/perfil">
+            <i class="fa-solid fa-user" id="icon"></i>
+          </a>
           {% if is_admin %}
-          <i
-            class="fa-solid fa-chart-pie"
-            id="icon"
-            onclick="redirect('dashboard.html')"
-          ></i>
+          <a href="/dashboard">
+            <i class="fa-solid fa-chart-pie" id="icon"></i>
+          </a>
           {% endif %}
-          <i
-            class="fa-solid fa-heart"
-            id="icon"
-            onclick="redirect('wishlist.html')"
-          ></i>
-          <i
-            class="fa-sharp fa-solid fa-bag-shopping"
-            id="icon"
-            onclick="redirect('carrinho.html')"
-          ></i>
+          <a href="/wishlist">
+            <i class="fa-solid fa-heart" id="icon"></i>
+          </a>
+          <a href="/carrinho">
+            <i class="fa-sharp fa-solid fa-bag-shopping" id="icon"></i>
+          </a>
         </div>
       </nav>
     </header>

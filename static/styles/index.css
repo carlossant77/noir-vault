@@ -108,12 +108,12 @@ nav a:hover::after {
     margin-right: 70px;
 }
 
-nav i {
+nav a i {
     font-size: 36px;
     transition: 0.5s;
 }
 
-nav i:hover {
+nav a i:hover {
     transition: 0.5s;
     cursor: pointer;
     color: grey;

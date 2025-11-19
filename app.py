@@ -20,6 +20,10 @@ def on_connect():
     for nome in usuarios_logados:
         emit('login realizado', {'nome': f'{nome} logou!'})
     usuarios_logados.clear()
+
+@socketio.on('change_page')
+def change_page(data):
+    return render_template(data)
  
 def get_db():
     conn = sqlite3.connect('noir.db')
@@ -163,6 +167,10 @@ def produtos():
         produtos_lista = cursor.fetchall()
  
     return render_template('produto.html', produtos=produtos_lista)
+
+@app.route('/perfil')
+def perfil():
+    return render_template('perfil.html')
  
  
 @app.route('/logout')
