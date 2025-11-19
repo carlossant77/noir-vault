@@ -147,8 +147,36 @@ input:not(:placeholder-shown) + .floating-label {
   LINK "JOIN US"
 ================================*/
 .join {
+    display: flex;
+    flex-direction: column;
     margin-top: 30px;
     text-align: center;
+    align-items: center;
+    width: 100%;
+}
+
+.join a {
+    font-family: 'Playfair Display';
+    margin-top: 16px;
+    text-decoration: none;
+    color: #ffffff;
+    position: relative;
+    max-width: fit-content;
+    align-items: center;
+}
+
+.join a::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -5px;
+    width: 0;
+    height: 2px;
+    background-color: currentColor;
+    transition: width 0.3s ease;
+}
+
+.join a:hover::after {
     width: 100%;
 }
 
