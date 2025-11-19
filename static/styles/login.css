@@ -49,10 +49,6 @@ body {
   animation: descer 0.6s ease-out forwards;
 }
 
-.slide-up {
-    animation: subir 0.6 ease-in backwards;
-}
-
 @keyframes descer {
   0% {
     top: -200px;
@@ -62,17 +58,6 @@ body {
     top: 40px;
     opacity: 0.8;
   }
-}
-
-@keyframes subir {
-    0% {
-        top: 40px;
-        opacity: 0.8;
-    }
-    100% {
-        top: -300px;
-        opacity: 0
-    }
 }
 
 .container {

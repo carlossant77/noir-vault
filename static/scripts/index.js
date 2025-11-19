@@ -1,9 +1,14 @@
 const socket = io();
 
+socket.on('connect', () => {
+    console.log('✅ Conectado ao servidor Socket.IO!');
+  });
+
 let loginRealizado = false;
 
-socket.on("login realizado", () => {
+socket.on("login realizado", (data) => {
   loginRealizado = true;
+  console.log(data)
 });
 
 function redirect(local) {

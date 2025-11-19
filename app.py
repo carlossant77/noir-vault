@@ -12,6 +12,14 @@ socketio = SocketIO(app, cors_allowed_origins="*", async_mode='threading')
  
 UPLOAD_FOLDER = 'static/uploads'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+usuarios_logados = set()
+
+@socketio.on('connect')
+def on_connect():
+    for nome in usuarios_logados:
+        emit('login realizado', {'nome': f'{nome} logou!'})
+    usuarios_logados.clear()
  
 def get_db():
     conn = sqlite3.connect('noir.db')
@@ -87,7 +95,7 @@ def login():
             session['usuario_id'] = usuario['id']
             session['usuario'] = usuario['nome']
             session['is_admin'] = bool(usuario['is_admin'])
-            emit("login realizado")
+            usuarios_logados.add(usuario['nome'])
             return redirect('/')
         else:
             return render_template('login.html', erro="Email ou senha incorretos!")
@@ -166,3 +174,4 @@ def logout():
 if __name__ == '__main__':
     init_db()
     app.run(debug=True)
+    socketio.run(app, debug=True)
