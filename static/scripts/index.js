@@ -17,7 +17,7 @@ function redirect(local) {
       return openModal();
     }
   }
-  window.location.href = local;
+  socket.emit('change_page', { local })
 }
 
 function openModal() {
