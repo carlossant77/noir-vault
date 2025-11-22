@@ -85,7 +85,7 @@ def login():
         conn = get_db()
         cursor = conn.cursor()
         cursor.execute(
-            "SELECT id, nome, is_admin FROM usuarios WHERE email = ? AND senha = ?",
+            "SELECT id, nome, email, is_admin FROM usuarios WHERE email = ? AND senha = ?",
             (email, hash_senha(senha))
         )
         usuario = cursor.fetchone()
@@ -94,6 +94,7 @@ def login():
         if usuario:
             session['usuario_id'] = usuario['id']
             session['usuario'] = usuario['nome']
+            session['email'] = email
             session['is_admin'] = bool(usuario['is_admin'])
             return redirect('/')
         else:
@@ -165,7 +166,7 @@ def produtos():
 
 @app.route('/perfil')
 def perfil():
-    return render_template('perfil.html', usuario=session.get('usuario'))
+    return render_template('perfil.html', usuario=session.get('usuario'), email=session.get('email'))
 
         
  
