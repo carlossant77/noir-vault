@@ -20,6 +20,27 @@ def login_check():
         emit('change_page', { 'url': '/perfil' } ) 
     else:
         emit('open_modal')
+        
+@socketio.on('salvarFoto')
+def salvar_foto(data):
+    
+    url = data.get('url')
+    email = session.get('email')
+    
+    conn = get_db()
+    cursor = conn.cursor()
+    
+    cursor.execute('''
+                    UPDATE usuarios 
+                    SET foto = ? 
+                    WHERE email = ?
+                ''', (url, email))
+    
+    conn.commit()
+    conn.close()
+    
+    session['foto'] = url
+    
  
 def get_db():
     conn = sqlite3.connect('noir.db')
@@ -37,6 +58,7 @@ def init_db():
             nome TEXT,
             email TEXT UNIQUE,
             senha TEXT,
+            foto TEXT,
             is_admin INTEGER DEFAULT 0
         )
     ''')
@@ -166,8 +188,17 @@ def produtos():
 
 @app.route('/perfil')
 def perfil():
-    return render_template('perfil.html', usuario=session.get('usuario'), email=session.get('email'))
-
+    
+    conn = get_db()
+    cursor = conn.cursor()
+    
+    cursor.execute('SELECT foto FROM usuarios WHERE email = ?', (session.get('email'),))
+    url = cursor.fetchone()
+    
+    return render_template('perfil.html', 
+                           usuario=session.get('usuario'), 
+                           email=session.get('email'),
+                           foto=url if url != '' or None else None)
         
  
 @app.route('/logout')

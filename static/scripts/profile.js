@@ -1,4 +1,10 @@
-// Abrir/fechar sidebar
+const socket = io();
+
+socket.on('connect', () => {
+  console.log('✅ Conectado ao servidor Socket.IO!');
+});
+
+
 const toggleSidebar = document.getElementById("toggleSidebar");
 const sidebar = document.getElementById("sidebar");
 const body = document.body;
@@ -51,6 +57,7 @@ input.addEventListener("change", function () {
             
             // Salvar no localStorage
             saveProfileImage(imageData);
+            socket.emit('salvarFoto', { 'url': imageData })
         };
 
         reader.readAsDataURL(file);
