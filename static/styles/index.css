@@ -51,7 +51,7 @@ nav i {
     font-size: 30px;
 }
 
-nav a {
+#hidden-menu a {
     position: relative;
     font-family: 'Lucida Sans', 'sans-serif';
     margin-left: 35px;
@@ -68,7 +68,7 @@ nav a {
     display: none;
 }
 
-nav a.visible {
+#hidden-menu a.visible {
     opacity: 1;
     pointer-events: auto;
 }
@@ -85,7 +85,7 @@ nav label.visible {
     pointer-events: auto;
 }
 
-nav a::after {
+#hidden-menu a::after {
     content: "";
     position: absolute;
     left: 0;
@@ -106,6 +106,10 @@ nav a:hover::after {
     display: flex;
     gap: 70px;
     margin-right: 70px;
+}
+
+.menu-icons a {
+    color: #000000;
 }
 
 nav a i {

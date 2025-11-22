@@ -1,23 +1,19 @@
 const socket = io();
 
 socket.on('connect', () => {
-    console.log('✅ Conectado ao servidor Socket.IO!');
-  });
-
-let loginRealizado = false;
-
-socket.on("login realizado", (data) => {
-  loginRealizado = true;
-  console.log(data)
+  console.log('✅ Conectado ao servidor Socket.IO!');
 });
 
-function redirect(local) {
-  if (local === "perfil.html") {
-    if (loginRealizado === false) {
-      return openModal();
-    }
-  }
-  socket.emit('change_page', { local })
+socket.on("open_modal", () => {
+  openModal()
+});
+
+socket.on("change_page", (data) => {
+  window.location.href = data.url
+})
+
+function loginCheck() {
+  socket.emit('login_check')
 }
 
 function openModal() {

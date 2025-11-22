@@ -13,17 +13,13 @@ socketio = SocketIO(app, cors_allowed_origins="*", async_mode='threading')
 UPLOAD_FOLDER = 'static/uploads'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-usuarios_logados = set()
 
-@socketio.on('connect')
-def on_connect():
-    for nome in usuarios_logados:
-        emit('login realizado', {'nome': f'{nome} logou!'})
-    usuarios_logados.clear()
-
-@socketio.on('change_page')
-def change_page(data):
-    return render_template(data)
+@socketio.on('login_check')
+def login_check():
+    if session.get('usuario'):
+        emit('change_page', { 'url': '/perfil' } ) 
+    else:
+        emit('open_modal')
  
 def get_db():
     conn = sqlite3.connect('noir.db')
@@ -99,7 +95,6 @@ def login():
             session['usuario_id'] = usuario['id']
             session['usuario'] = usuario['nome']
             session['is_admin'] = bool(usuario['is_admin'])
-            usuarios_logados.add(usuario['nome'])
             return redirect('/')
         else:
             return render_template('login.html', erro="Email ou senha incorretos!")
@@ -170,8 +165,9 @@ def produtos():
 
 @app.route('/perfil')
 def perfil():
-    return render_template('perfil.html')
- 
+    return render_template('perfil.html', usuario=session.get('usuario'))
+
+        
  
 @app.route('/logout')
 def logout():
