@@ -1,0 +1,45 @@
+header {
+    width: 100%;
+    margin: 0;
+    justify-self: flex-start;
+    top: 0px;
+    z-index: 9998;
+    isolation: isolate;
+}
+
+nav {
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+    padding-top: 26px;
+    padding-bottom: 26px;
+    background-color: white;
+    z-index: 999;
+}
+
+.menu-icons {
+    display: flex;
+    gap: 30px;
+    margin-right: 20px;
+}
+
+.menu-icons {
+    display: flex;
+    gap: 70px;
+    margin-right: 70px;
+}
+
+.menu-icons a {
+    color: #000000;
+}
+
+nav a i {
+    font-size: 36px;
+    transition: 0.5s;
+}
+
+nav a i:hover {
+    transition: 0.5s;
+    cursor: pointer;
+    color: grey;
+}

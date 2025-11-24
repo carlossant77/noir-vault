@@ -200,7 +200,12 @@ def perfil():
                            email=session.get('email'),
                            foto=url if url != '' or None else None)
         
- 
+
+@app.route('/wishlist')
+def wishlist():
+    return render_template('wishlist.html')
+
+
 @app.route('/logout')
 def logout():
     session.clear()

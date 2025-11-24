@@ -47,10 +47,6 @@ nav label,
     z-index: 999;
 }
 
-nav i {
-    font-size: 30px;
-}
-
 #hidden-menu a {
     position: relative;
     font-family: 'Lucida Sans', 'sans-serif';
