@@ -26,9 +26,21 @@
     <!-- Barra lateral fixa -->
     <aside id="sidebar" class="sidebar">
         <button id="toggleSidebar" class="hamburger-btn">
-            <i class="fas fa-hamburger" style="color: #787878;"></i>
+            <i class="fa-solid fa-bars"></i>
         </button>
-        <div class="gray-strip"></div>
+        <div class="gray-strip">
+            <div class="options">
+                <a href="/">INICIO</a>
+                <a href="/wishlist">WISHLIST</a>
+                <a href="">CARRINHO</a>
+                <a href="">SUPORTE</a>
+            </div>
+            <div class="logout-container">
+                <hr>
+                <a href="" class="logout">LOGOUT</a>
+            </div>
+        </div>
+
     </aside>
 
     <main class="content">
@@ -49,18 +61,18 @@
             </div>
 
             <div class="info">
-                <p class="label" style="font-family: libre baskerville, serif; color: #787878;">Name</p>
-                <p class="value" style="font-family: League Spartan, 
-                sans-serif; font-weight: bold; color: #6b6b6b;">{{ usuario }}</p>
+                <p class="label" style="font-family: libre baskerville, serif; color: #000000;">Name</p>
+                <p class="value" style="font-family: libre baskerville, serif; font-weight: bold; color: #000000;">{{
+                    usuario }}</p>
 
                 <p class="label" style="font-family: libre baskerville, 
-                serif; color: #787878;">E-mail</p>
-                <p class="value" style="font-family: League Spartan, 
-                sans-serif; font-weight: bold; color: #6b6b6b;">{{ email }}</p>
+                serif; color: #000000;">E-mail</p>
+                <p class="value" style="font-family: libre baskerville, serif; font-weight: bold; color: #000000;">{{
+                    email }}</p>
             </div>
         </div>
 
-        <h3 class="last-purchases" style="font-family: libre baskerville, serif; color: #787878;">Últimas compras</h3>
+        <h3 class="last-purchases" style="font-family: libre baskerville, serif; color: #000000;">Últimas Compras</h3>
 
     </main>
 

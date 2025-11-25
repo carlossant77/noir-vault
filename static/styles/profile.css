@@ -22,6 +22,63 @@ body {
     width: 100%;
     height: 100%;
     background: #e6e6e6;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.gray-strip a {
+    font-family: 'Libre Baskerville', serif;
+    font-size: 20px;
+    text-decoration: none;
+    color: black;
+    margin-left: 15px;
+    opacity: 0;
+    position: relative;
+}
+
+.gray-strip a::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -3px;
+    width: 0;
+    height: 2px;
+    background-color: currentColor;
+    transition: width 0.3s ease;
+}
+
+.gray-strip a:hover::after {
+    width: 100%;
+}
+
+.gray-strip a.visible {
+    opacity: 1;
+}
+
+.gray-strip hr.visible {
+    opacity: 1;
+}
+
+.options {
+    margin-top: 76px;
+    gap: 24px;
+    display: flex;
+    flex-direction: column;
+}
+
+.logout-container {
+    width: 100%;
+    margin-bottom: 24px;
+}
+
+.gray-strip hr {
+    width: 100%;
+    height: 1px;
+    background-color: #000000;
+    margin-bottom: 24px;
+    opacity: 0;
 }
 
 /* Quando abrir */
@@ -108,7 +165,7 @@ body.sidebar-open {
     position: absolute;
     bottom: 5px;
     right: 5px;
-    background: #777;
+    background: #000000;
     color: #fff;
     padding: 10px;
     border-radius: 50%;
@@ -118,12 +175,12 @@ body.sidebar-open {
 .info .label {
     font-weight: bold;
     margin-top: 20px;
-    font-size: 18px;
+    font-size: 22px;
 }
 
 .info .value {
     font-size: 18px;
-    color: #555;
+    letter-spacing: 2px;
 }
 
 .last-purchases {

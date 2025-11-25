@@ -8,10 +8,16 @@ socket.on('connect', () => {
 const toggleSidebar = document.getElementById("toggleSidebar");
 const sidebar = document.getElementById("sidebar");
 const body = document.body;
+const links = document.querySelectorAll('a')
+const line = document.querySelector('hr')
 
 toggleSidebar.addEventListener("click", () => {
     sidebar.classList.toggle("open");
     body.classList.toggle("sidebar-open");
+    links.forEach(item => {
+        item.classList.toggle('visible')
+    })
+    line.classList.toggle('visible')
 });
 
 // Foto do perfil
