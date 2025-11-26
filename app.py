@@ -15,9 +15,9 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 
 @socketio.on('login_check')
-def login_check():
+def login_check(data):
     if session.get('usuario'):
-        emit('change_page', { 'url': '/perfil' } ) 
+        emit('change_page', { 'url': data.get('url') } ) 
     else:
         emit('open_modal')
         
@@ -204,6 +204,11 @@ def perfil():
 @app.route('/wishlist')
 def wishlist():
     return render_template('wishlist.html')
+
+
+@app.route('/carrinho')
+def carrinho():
+    return render_template('carrinho.html')
 
 
 @app.route('/logout')

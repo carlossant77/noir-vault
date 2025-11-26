@@ -12,8 +12,8 @@ socket.on("change_page", (data) => {
   window.location.href = data.url
 })
 
-function loginCheck() {
-  socket.emit('login_check')
+function loginCheck(url) {
+  socket.emit('login_check', { 'url': url })
 }
 
 function openModal() {
@@ -64,6 +64,12 @@ function closeModal() {
 
   div.classList.remove("visible");
   fundo.classList.remove("visible");
+}
+
+const erro = document.getElementById("erro-msg")?.dataset.erro === "true";
+
+if (erro) {
+  openModal()
 }
 
 document.addEventListener("scroll", () => {
