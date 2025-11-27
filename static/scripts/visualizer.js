@@ -1,4 +1,13 @@
-// Accordion behavior
+const socket = io();
+
+socket.on('connect', () => {
+  console.log('✅ Conectado ao servidor Socket.IO!');
+});
+
+socket.on('abrir_confirmação', () => {
+  
+})
+
 document.querySelectorAll('.acc-item').forEach(item => {
   const btn = item.querySelector('.acc-header');
   const content = item.querySelector('.acc-content');
@@ -18,9 +27,9 @@ document.querySelectorAll('.acc-item').forEach(item => {
   });
 });
 
-function carregarProduto() {
-  const produto = JSON.parse(localStorage.getItem("produtoSelecionado"));
+const produto = JSON.parse(localStorage.getItem("produtoSelecionado"));
 
+function carregarProduto() {
   const fotoPrincipal = document.querySelector('.foto1')
   const foto2 = document.querySelector('.foto2')
   const foto3 = document.querySelector('.foto3')
@@ -51,6 +60,11 @@ function carregarProduto() {
   let valorParcela = produto.preco / 12
   parcelas.textContent = `12 x R$${valorParcela.toFixed(2)}`
   console.log(produto)
+}
+
+function adicionarCarrinho() {
+  const tamanhoContainer = document.querySelector('.tamanho')
+  socket.emit('adicionarCarrinho', { 'produto': produto, 'tamanho': tamanhoContainer.value } )
 }
 
 document.addEventListener("DOMContentLoaded", (e) => {

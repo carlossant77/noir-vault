@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="pt-BR">
+
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -10,7 +11,8 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400..700;1,400..700&display=swap"
+    rel="stylesheet">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -18,8 +20,11 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap"
+    rel="stylesheet">
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
 </head>
+
 <body>
   <header class="menu-container">
     <div class="logo">
@@ -63,14 +68,15 @@
             <div>
               <div class="brand" style="font-family: Libre Baskerville, serif;"></div>
               <div class="rating" aria-hidden="false">
-                <span style="font-size:14px; color: black;"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="far fa-star"></i></span>
+                <span style="font-size:14px; color: black;"><i class="fas fa-star"></i><i class="fas fa-star"></i><i
+                    class="fas fa-star"></i><i class="fas fa-star"></i><i class="far fa-star"></i></span>
               </div>
             </div>
           </div>
           <div class="subtitle" style="font-family: Libre Baskerville, serif;"></div>
           <div class="price" style="font-family: Libre Baskerville, serif;"></div>
           <div class="installments" style="font-family: Libre Baskerville, serif;"></div>
-          <select id="size" aria-label="Seleção de tamanho" style="font-family: Lustria, serif;">
+          <select id="size" aria-label="Seleção de tamanho" style="font-family: Lustria, serif;" class="tamanho">
             <option class="option1">37</option>
             <option class="option2">38</option>
             <option class="option3">39</option>
@@ -78,8 +84,10 @@
           </select>
           <button class="btn-buy" aria-label="Comprar" style="font-family: Playfair Display, serif;">COMPRAR</button>
           <div class="actions" role="group" aria-label="Ações">
-            <button class="small-btn" aria-label="Adicionar à wishlist" style="font-family: Playfair Display, serif;"><i class="far fa-heart" ></i> WISHLIST</button>
-            <button class="small-btn" aria-label="Adicionar à sacola" style="font-family: Playfair Display, serif;"><i class="fas fa-shopping-bag"></i> BAG</button>
+            <button class="small-btn" aria-label="Adicionar à wishlist" style="font-family: Playfair Display, serif;"><i
+                class="far fa-heart"></i> WISHLIST</button>
+            <button class="small-btn" onclick="adicionarCarrinho()" aria-label="Adicionar à sacola"
+              style="font-family: Playfair Display, serif;"><i class="fas fa-shopping-bag"></i> BAG</button>
           </div>
           <!--
           <div class="mini-gallery" aria-hidden="true">
@@ -97,21 +105,27 @@
           DETALHES
           <i class="fa-solid fa-chevron-down"></i>
         </button>
-        <div class="acc-content" style="font-family: Libre Baskerville, serif;"><p>Detalhes do produto exibidos aqui. Material, origem e descrição completa.</p></div>
+        <div class="acc-content" style="font-family: Libre Baskerville, serif;">
+          <p>Detalhes do produto exibidos aqui. Material, origem e descrição completa.</p>
+        </div>
       </div>
-      <div class="acc-item" >
+      <div class="acc-item">
         <button class="acc-header" type="button" style="font-family: Libre Baskerville, serif;">
           TAMANHOS E MEDIDAS
           <i class="fa-solid fa-chevron-down"></i>
         </button>
-        <div class="acc-content" style="font-family: Libre Baskerville, serif;"><p>Tabelas de medidas, ajuste e recomendações de tamanho.</p></div>
+        <div class="acc-content" style="font-family: Libre Baskerville, serif;">
+          <p>Tabelas de medidas, ajuste e recomendações de tamanho.</p>
+        </div>
       </div>
       <div class="acc-item">
         <button class="acc-header" type="button" style="font-family: Libre Baskerville, serif;">
           ENTREGAS, DEVOLUÇÕES E VENDEDOR
           <i class="fa-solid fa-chevron-down"></i>
         </button>
-        <div class="acc-content" style="font-family: Libre Baskerville, serif;"><p>Informações de envio, políticas de devolução e dados do vendedor.</p></div>
+        <div class="acc-content" style="font-family: Libre Baskerville, serif;">
+          <p>Informações de envio, políticas de devolução e dados do vendedor.</p>
+        </div>
       </div>
     </section>
 
@@ -156,4 +170,5 @@
   </div>
   <script src="/static/scripts/visualizer.js"></script>
 </body>
+
 </html>

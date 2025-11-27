@@ -25,6 +25,29 @@
 </head>
 
 <body>
+  <header class="menu-container">
+    <div class="logo">
+      <a href="/">NOIR VAULT</a>
+    </div>
+    <nav class="navegation-menu">
+      <div class="menu-icons">
+        <a href="/perfil">
+          <i class="fa-solid fa-user" id="icon"></i>
+        </a>
+        {% if is_admin %}
+        <a href="/dashboard">
+          <i class="fa-solid fa-chart-pie" id="icon"></i>
+        </a>
+        {% endif %}
+        <a href="/wishlist">
+          <i class="fa-solid fa-heart" id="icon"></i>
+        </a>
+        <a href="/carrinho">
+          <i class="fa-sharp fa-solid fa-bag-shopping" id="icon"></i>
+        </a>
+      </div>
+    </nav>
+  </header>
   <main class="container">
 
     <h1 class="titulo">BAG</h1>

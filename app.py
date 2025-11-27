@@ -6,6 +6,7 @@ import hashlib
 import os
 import requests
 import re
+import json
 
 
 app = Flask(__name__, template_folder="templates", static_folder="static")
@@ -75,6 +76,13 @@ def salvar_foto(data):
     conn.close()
 
     session["foto"] = url
+
+
+@socketio.on("adicionarCarrinho")
+def salvar_carrinho(data):
+    user_id = obter_user()
+    adicionar_ao_carrinho(user_id, data)
+    emit("abrir_confirmação", {"status": "sucesso"})
 
 
 def get_db():
@@ -337,6 +345,67 @@ def visualizar():
     return render_template("visualizer.html")
 
 
+def adicionar_ao_carrinho(cliente_id, produto):
+    conn = get_db()
+    cursor = conn.cursor()
+
+    dados_json = json.dumps(produto)
+    dados = produto["produto"]
+    tamanho = produto["tamanho"]
+
+    cursor.execute(
+        """
+        INSERT INTO carrinho (cliente_id, produto_id, dados_produto, tamanho_selecionado)
+        VALUES (?, ?, ?, ?)
+    """,
+        (cliente_id, dados["produto_id"], dados_json, tamanho),
+    )
+
+    conn.commit()
+    conn.close()
+
+
+def obter_carrinho():
+    user_id = obter_user()
+
+    conn = get_db()
+    cursor = conn.cursor()
+
+    cursor.execute(
+        """
+                   SELECT * FROM carrinho WHERE cliente_id = ?""",
+        (user_id,),
+    )
+    
+    colunas = cursor.fetchall()
+    carrinho = [dict(row) for row in colunas]
+        
+    return carrinho
+
+
+def obter_user():
+    conn = get_db()
+    cursor = conn.cursor()
+
+    email = session.get("email")
+
+    cursor.execute(
+        """SELECT id FROM usuarios WHERE email = ?
+                   """,
+        (email,),
+    )
+    row = cursor.fetchone()
+    user_id = row[0]
+    return user_id
+
+
+@app.route("/carrinho", methods=["GET", "POST"])
+def carrinho():
+    carrinho = obter_carrinho()
+    print(carrinho)
+    return render_template("bag.html", carrinho=carrinho)
+
+
 @app.route("/prateleira", methods=["GET", "POST"])
 def prateleira():
     if "usuario_id" not in session:
@@ -451,51 +520,6 @@ def produtos():
     return render_template("prateleira.html", produtos=produtos_lista)
 
 
-@app.route("/produto/<int:produto_id>")
-def detalhe_produto(produto_id):
-    conn = get_db()
-    cursor = conn.cursor()
-
-    # Busca o produto
-    cursor.execute("SELECT * FROM produtos WHERE produto_id = ?", (produto_id,))
-    produto = cursor.fetchone()
-
-    if not produto:
-        return "Produto não encontrado", 404
-
-    # Calcula a média de avaliações
-    media, total_avaliacoes = get_media_avaliacao(produto_id)
-
-    # Prepara os dados para o template
-    produto_dict = dict(produto)
-    produto_dict["preco_display"] = "{:.2f}".format(produto_dict["preco"] / 100.0)
-    produto_dict["media_avaliacao"] = media
-    produto_dict["total_avaliacoes"] = total_avaliacoes
-    tamanhos_disponiveis = produto_dict.get("tamanhos_disponiveis", "PP,P,M,G,GG")
-    produto_dict["tamanhos"] = tamanhos_disponiveis.split(",")
-
-    # Verifica a avaliação do usuário logado, se houver
-    avaliacao_usuario = None
-    if "usuario_id" in session:
-        usuario_id = session["usuario_id"]
-        cursor.execute(
-            "SELECT nota FROM avaliacoes WHERE usuario_id = ? AND produto_id = ?",
-            (usuario_id, produto_id),
-        )
-        user_rating = cursor.fetchone()
-        if user_rating:
-            avaliacao_usuario = user_rating["nota"]
-
-    return render_template(
-        "produto.html",
-        produto=produto_dict,
-        logado="usuario_id" in session,
-        usuario=session.get("usuario"),
-        is_admin=session.get("is_admin", False),
-        avaliacao_usuario=avaliacao_usuario,  # Avaliação anterior do usuário
-    )
-
-
 @app.route("/perfil")
 def perfil():
 
@@ -516,157 +540,6 @@ def perfil():
 @app.route("/wishlist")
 def wishlist():
     return render_template("wishlist.html")
-
-
-@app.route("/carrinho")
-def carrinho():
-    if "usuario_id" not in session:
-        return redirect("/login")
-
-    user_id = session["usuario_id"]
-    conn = get_db()
-    conn.row_factory = sqlite3.Row
-    cur = conn.cursor()
-
-    # Pega todos os itens do carrinho do usuário (inclui tamanho_selecionado)
-    cur.execute(
-        """
-        SELECT c.id AS carrinho_id, c.usuario_id, c.produto_id, c.quantidade, c.preco, c.cupom,
-            p.nome, p.foto, p.tipo, p.tamanho, c.tamanho_selecionado
-        FROM carrinho c
-        JOIN produtos p ON c.produto_id = p.produto_id
-        WHERE c.usuario_id = ?
-        ORDER BY c.id DESC
-    """,
-        (user_id,),
-    )
-    rows = cur.fetchall()
-
-    itens = []
-    total_cents = 0
-    for r in rows:
-        item = dict(r)
-        item["preco_display"] = "{:.2f}".format(item["preco"] / 100.0)
-        item["subtotal_display"] = "{:.2f}".format(
-            (item["preco"] * item["quantidade"]) / 100.0
-        )
-        itens.append(item)
-        total_cents += int(item["preco"]) * int(item["quantidade"])
-
-    total_display = "{:.2f}".format(total_cents / 100.0)
-
-    # Verifica se há cupom aplicado na sessão
-    cupom_aplicado = session.get("cupom_aplicado")
-    desconto = session.get("desconto", 0)
-    total_desconto_display = None
-
-    if desconto and total_cents > 0:
-        total_com_desconto = int(total_cents * (1 - desconto))
-        total_desconto_display = "{:.2f}".format(total_com_desconto / 100.0)
-
-    mensagem_cupom = session.pop("mensagem_cupom", None)
-
-    return render_template(
-        "carrinho.html",
-        itens=itens,
-        total_display=total_display,
-        total_desconto_display=total_desconto_display,
-        cupom_aplicado=cupom_aplicado,
-        mensagem_cupom=mensagem_cupom,
-    )
-
-
-@app.route("/adicionar_ao_carrinho/<int:produto_id>", methods=["POST"])
-def adicionar_ao_carrinho(produto_id):
-    if "usuario_id" not in session:
-        return redirect("/login")
-
-    user_id = session["usuario_id"]
-    quantidade = int(request.form.get("quantidade", 1))
-    if quantidade < 1:
-        quantidade = 1
-
-    tamanho_selecionado = request.form.get("tamanho")
-    if not tamanho_selecionado:
-        # Se o tamanho não for selecionado, redireciona para a página do produto
-        return redirect(f"/produto/{produto_id}")
-
-    conn = get_db()
-    cur = conn.cursor()
-    cur.execute(
-        "SELECT produto_id, preco FROM produtos WHERE produto_id = ?", (produto_id,)
-    )
-    produto = cur.fetchone()
-    if not produto:
-        return "Produto não encontrado.", 404
-
-    preco_cents = produto["preco"]
-
-    # Busca por produto_id E tamanho_selecionado para permitir itens do mesmo produto em tamanhos diferentes
-    cur.execute(
-        "SELECT id, quantidade FROM carrinho WHERE usuario_id = ? AND produto_id = ? AND tamanho_selecionado = ?",
-        (user_id, produto_id, tamanho_selecionado),
-    )
-    existente = cur.fetchone()
-
-    if existente:
-        # Se o item do MESMO TAMANHO já existir, atualiza a quantidade.
-        nova_qtd = existente["quantidade"] + quantidade
-        cur.execute(
-            "UPDATE carrinho SET quantidade = ? WHERE id = ?",
-            (nova_qtd, existente["id"]),
-        )
-    else:
-        # Insere um novo item (com tamanho_selecionado)
-        cur.execute(
-            "INSERT INTO carrinho (usuario_id, produto_id, quantidade, preco, tamanho_selecionado) VALUES (?, ?, ?, ?, ?)",
-            (user_id, produto_id, quantidade, preco_cents, tamanho_selecionado),
-        )
-
-    conn.commit()
-
-    # Mantém o cupom ativo na sessão, mas sem recalcular aqui
-    return redirect("/carrinho")
-
-
-@app.route("/remover_do_carrinho/<int:carrinho_id>", methods=["POST"])
-def remover_do_carrinho(carrinho_id):
-    if "usuario_id" not in session:
-        return redirect("/login")
-
-    user_id = session["usuario_id"]
-    conn = get_db()
-    cur = conn.cursor()
-    cur.execute(
-        "DELETE FROM carrinho WHERE id = ? AND usuario_id = ?", (carrinho_id, user_id)
-    )
-    conn.commit()
-
-    return redirect("/carrinho")
-
-
-@app.route("/atualizar_carrinho/<int:carrinho_id>", methods=["POST"])
-def atualizar_carrinho(carrinho_id):
-    if "usuario_id" not in session:
-        return redirect("/login")
-
-    try:
-        nova_qtd = int(request.form.get("quantidade", 1))
-    except ValueError:
-        nova_qtd = 1
-    if nova_qtd < 1:
-        nova_qtd = 1
-
-    user_id = session["usuario_id"]
-    conn = get_db()
-    cur = conn.cursor()
-    cur.execute(
-        "UPDATE carrinho SET quantidade = ? WHERE id = ? AND usuario_id = ?",
-        (nova_qtd, carrinho_id, user_id),
-    )
-    conn.commit()
-
-    return redirect("/carrinho")
 
 
 @app.route("/aplicar_cupom", methods=["POST"])
