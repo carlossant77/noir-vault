@@ -6,10 +6,14 @@
 }
 
 .clothe h1 {
+    width: 300px;
     font-family: 'Libre Baskerville', serif;
     font-weight: normal;
     font-size: 1.6vw;
     letter-spacing: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis
 }
 
 .decoration {
