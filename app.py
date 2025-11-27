@@ -398,12 +398,42 @@ def obter_user():
     user_id = row[0]
     return user_id
 
-
+def calcular_compra():
+    carrinho_bruto = obter_carrinho()
+    
+    carrinho = []
+    for item in carrinho_bruto:
+        dados_produto_dict = json.loads(item['dados_produto']) 
+    
+        item['produto_info'] = dados_produto_dict['produto']
+    
+        del item['dados_produto'] 
+    
+        carrinho.append(item)
+    
+    valor_compra = 0
+    for item in carrinho:
+        valor_item = item['produto_info']['preco']
+        valor_compra += valor_item
+        
+    return valor_compra
+    
 @app.route("/carrinho", methods=["GET", "POST"])
 def carrinho():
-    carrinho = obter_carrinho()
-    print(carrinho)
-    return render_template("bag.html", carrinho=carrinho)
+    carrinho_bruto = obter_carrinho()
+    
+    carrinho = []
+    for item in carrinho_bruto:
+        dados_produto_dict = json.loads(item['dados_produto']) 
+    
+        item['produto_info'] = dados_produto_dict['produto']
+    
+        del item['dados_produto'] 
+    
+        carrinho.append(item)
+    
+    valor_compra = calcular_compra()  
+    return render_template("bag.html", carrinho=carrinho, valor_compra=valor_compra)
 
 
 @app.route("/prateleira", methods=["GET", "POST"])
@@ -475,12 +505,13 @@ def produtos():
         # --- SE FOR POST: inserção ---
         if request.method == "POST":
             nome_bruto = request.form["nome"]
-            tipo = request.form["tipo"]
+            tipo_bruto = request.form["tipo"]
             tamanho = request.form.get("tamanho", "")
             quantidade = int(request.form["quantidade"])
             preco = int(float(request.form["preco"].replace(",", ".")) * 100)
 
             nome = nome_bruto.upper()
+            tipo = tipo_bruto.upper()
 
             cursor.execute(
                 """
