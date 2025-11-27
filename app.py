@@ -12,7 +12,7 @@ app = Flask(__name__, template_folder='templates', static_folder='static')
 app.secret_key = 'chave_secreta'
 socketio = SocketIO(app, cors_allowed_origins="*", async_mode='threading')
  
-UPLOAD_FOLDER = 'static/uploads'
+UPLOAD_FOLDER = 'static/assets'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 
@@ -22,7 +22,18 @@ def login_check(data):
         emit('change_page', { 'url': data.get('url') } ) 
     else:
         emit('open_modal')
-        
+ 
+ 
+@socketio.on("carregar_produtos")
+def carregar_produtos():
+    with sqlite3.connect("noir.db") as conn:
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM produtos ORDER BY produto_id DESC")
+        produtos = [dict(linha) for linha in cursor.fetchall()]
+    socketio.emit("renderizar_produtos", {"produtos": produtos})
+
+       
 @socketio.on('salvarFoto')
 def salvar_foto(data):
     
@@ -213,6 +224,8 @@ def avaliar_produto(produto_id):
  
 @app.route('/')
 def home():
+    
+    
         return render_template(
             'index.html',
             logado=True,
@@ -273,7 +286,7 @@ def cadastro():
 
 
 @app.route('/prateleira', methods=['GET', 'POST'])
-def produtos():
+def prateleira():
     if 'usuario_id' not in session:
         return redirect('/login')
 
@@ -305,9 +318,12 @@ def produtos():
         conn.commit()
 
     cursor.execute("SELECT * FROM produtos ORDER BY produto_id DESC")
+    cursor.execute("SELECT DISTINCT tipo FROM produtos")
+    tipos = [row["tipo"] for row in cursor.fetchall()]
     produtos_lista = cursor.fetchall()
-
-    return render_template('prateleira.html', produtos=produtos_lista)
+    conn.close()
+    
+    return render_template('prateleira.html', produtos=produtos_lista, tipos=tipos)
  
  
 @app.route('/produtos', methods=['GET', 'POST'])
@@ -318,35 +334,85 @@ def produtos():
     if not session.get('is_admin', False):
         return "Acesso negado! Você precisa ser administrador.", 403
  
-    if request.method == 'POST':
-        nome = request.form['nome']
-        tipo = request.form['tipo']
-        tamanho = request.form.get('tamanho', '')
-        quantidade = int(request.form['quantidade'])
-        preco = int(float(request.form['preco'].replace(',', '.')) * 100)
- 
-        foto = request.files.get('foto')
-        foto_filename = None
-        if foto and foto.filename != '':
-            foto_filename = secure_filename(foto.filename)
-            foto.save(os.path.join(UPLOAD_FOLDER, foto_filename))
- 
-        with sqlite3.connect('noir.db', timeout=10, check_same_thread=False) as conn:
-            cursor = conn.cursor()
-            cursor.execute(
-                "INSERT INTO produtos (nome, tipo, tamanho, quantidade, preco, foto) VALUES (?, ?, ?, ?, ?, ?)",
-                (nome, tipo, tamanho, quantidade, preco, foto_filename)
-            )
-            conn.commit()
- 
     with sqlite3.connect('noir.db', timeout=10, check_same_thread=False) as conn:
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
+
+        # --- SE FOR POST: inserção ---
+        if request.method == 'POST':
+            nome_bruto = request.form['nome']
+            tipo = request.form['tipo']
+            tamanho = request.form.get('tamanho', '')
+            quantidade = int(request.form['quantidade'])
+            preco = int(float(request.form['preco'].replace(',', '.')) * 100)
+        
+            foto = request.files.get('foto')
+            foto_filename = None
+
+            if foto and foto.filename != '':
+                foto_filename = secure_filename(foto.filename)
+                foto.save(os.path.join(UPLOAD_FOLDER, foto_filename))
+                
+            nome = nome_bruto.upper()
+
+            cursor.execute("""
+                INSERT INTO produtos (nome, tipo, tamanho, quantidade, preco, foto)
+                VALUES (?, ?, ?, ?, ?, ?)
+            """, (nome, tipo, tamanho, quantidade, preco, foto_filename))
+
+            conn.commit()
+
+        # --- SEMPRE: buscar lista ---
         cursor.execute("SELECT * FROM produtos ORDER BY produto_id DESC")
         produtos_lista = cursor.fetchall()
- 
+
     return render_template('produto.html', produtos=produtos_lista)
 
+@app.route('/produto/<int:produto_id>')
+def detalhe_produto(produto_id):
+    conn = get_db()
+    cursor = conn.cursor()
+
+    # Busca o produto
+    cursor.execute("SELECT * FROM produtos WHERE produto_id = ?", (produto_id,))
+    produto = cursor.fetchone()
+
+    if not produto:
+        return "Produto não encontrado", 404
+
+    # Calcula a média de avaliações
+    media, total_avaliacoes = get_media_avaliacao(produto_id)
+
+    # Prepara os dados para o template
+    produto_dict = dict(produto)
+    produto_dict['preco_display'] = "{:.2f}".format(produto_dict['preco'] / 100.0)
+    produto_dict['media_avaliacao'] = media
+    produto_dict['total_avaliacoes'] = total_avaliacoes
+    tamanhos_disponiveis = produto_dict.get('tamanhos_disponiveis', 'PP,P,M,G,GG')
+    produto_dict['tamanhos'] = tamanhos_disponiveis.split(',')
+
+    # Verifica a avaliação do usuário logado, se houver
+    avaliacao_usuario = None
+    if 'usuario_id' in session:
+        usuario_id = session['usuario_id']
+        cursor.execute(
+            "SELECT nota FROM avaliacoes WHERE usuario_id = ? AND produto_id = ?",
+            (usuario_id, produto_id)
+        )
+        user_rating = cursor.fetchone()
+        if user_rating:
+            avaliacao_usuario = user_rating['nota']
+
+    return render_template(
+        'produto.html',
+        produto=produto_dict,
+        logado='usuario_id' in session,
+        usuario=session.get('usuario'),
+        is_admin=session.get('is_admin', False),
+        avaliacao_usuario=avaliacao_usuario  # Avaliação anterior do usuário
+    )
+    
+    
 @app.route('/perfil')
 def perfil():
     
