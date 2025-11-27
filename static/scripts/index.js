@@ -14,56 +14,50 @@ socket.on("change_page", (data) => {
 })
 
 socket.on("renderizar_produtos", data => {
-    const container = document.querySelector('.roupas-container');
+  const container = document.querySelector('.roupas-container');
+  container.innerHTML = ""; // limpa antes de renderizar
 
-    if (!container) {
-        console.error("Container .roupas-container não encontrado!");
-        return;
+  console.log("PRODUTOS:", data.produtos);
+
+  data.produtos.forEach(produto => {
+
+    // garante que existam fotos
+    let imagemPrincipal = "/static/assets/placeholder.png";
+    if (produto.fotos && produto.fotos.length >= 1) {
+      imagemPrincipal = `/static/assets/${produto.fotos[0]}`;
+      imagemSecundaria = `/static/assets/${produto.fotos[1]}`
     }
 
-    container.innerHTML = ""; // limpar antes de renderizar
+    const card = `
+            <div class="clothe" data-produto='${JSON.stringify(produto)}'>
+                <h1>${produto.nome}</h1>
+                <div class="decoration"></div>
 
-    data.produtos.forEach(produto => {
+                <div class="card">
+                    <img src="${imagemPrincipal}" alt="${produto.nome}" class="img img-1">
+                    <img src="${imagemSecundaria}" alt="${produto.nome}" class="img img-2">
+                </div>
 
-        // Criar container principal
-        const wrapper = document.createElement("div");
-        wrapper.classList.add("clothe");
+                <i class="fa-solid fa-heart" id="icon-roupa"></i>
+            </div>
+        `;
 
-        // Título
-        const title = document.createElement("h1");
-        title.textContent = produto.nome;
-
-        // Decoração
-        const deco = document.createElement("div");
-        deco.classList.add("decoration");
-
-        // Card da imagem
-        const card = document.createElement("div");
-        card.classList.add("card");
-
-        // Imagem
-        const img = document.createElement("img");
-        img.src = `/static/assets/${produto.foto}` || "/static/assets/default.png";  
-        img.alt = produto.nome;
-
-        // Ícone (se quiser renderizar)
-        const icon = document.createElement("i");
-        icon.className = "fa-regular fa-heart";
-        icon.id = "icon-roupa";
-
-        // Montar elementos
-        card.appendChild(img);
-        card.appendChild(icon);
-
-        wrapper.appendChild(title);
-        wrapper.appendChild(deco);
-        wrapper.appendChild(card);
-
-        container.appendChild(wrapper);
-    });
-
-    console.log("Renderização concluída:", data.produtos);
+    container.insertAdjacentHTML("beforeend", card);
+  });
 });
+
+document.addEventListener("click", (e) => {
+    const wrapper = e.target.closest(".clothe");
+    if (!wrapper) return;
+
+    const produto = JSON.parse(wrapper.dataset.produto);
+
+    // Salvar no LocalStorage
+    localStorage.setItem("produtoSelecionado", JSON.stringify(produto));
+
+    window.location.href = '/visualizar'
+});
+
 
 
 function loginCheck(url) {

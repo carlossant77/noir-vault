@@ -29,9 +29,28 @@ def carregar_produtos():
     with sqlite3.connect("noir.db") as conn:
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
-        cursor.execute("SELECT * FROM produtos ORDER BY produto_id DESC")
-        produtos = [dict(linha) for linha in cursor.fetchall()]
-    socketio.emit("renderizar_produtos", {"produtos": produtos})
+        produtos = cursor.execute("SELECT * FROM produtos").fetchall()
+
+        resposta = []
+
+        for p in produtos:
+            fotos = cursor.execute(
+                "SELECT caminho FROM fotos_produto WHERE produto_id = ? ORDER BY id ASC",
+                (p["produto_id"],),
+            ).fetchall()
+
+            resposta.append(
+                {
+                    "produto_id": p["produto_id"],
+                    "nome": p["nome"],
+                    "preco": p["preco"],
+                    "tipo": p["tipo"],
+                    "quantidade": p["quantidade"],
+                    "fotos": [f["caminho"] for f in fotos],  # lista das 4 imagens
+                }
+            )
+
+        socketio.emit("renderizar_produtos", {"produtos": resposta})
 
 
 @socketio.on("salvarFoto")
@@ -313,6 +332,11 @@ def cadastro():
     return render_template("cadastro.html")
 
 
+@app.route("/visualizar", methods=["GET", "POST"])
+def visualizar():
+    return render_template("visualizer.html")
+
+
 @app.route("/prateleira", methods=["GET", "POST"])
 def prateleira():
     if "usuario_id" not in session:
@@ -372,9 +396,9 @@ def produtos():
 
     if not session.get("is_admin", False):
         return "Acesso negado! Você precisa ser administrador.", 403
-    
+
     conn = get_db()
-    
+
     with sqlite3.connect("noir.db", timeout=10, check_same_thread=False) as conn:
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
@@ -386,11 +410,11 @@ def produtos():
             tamanho = request.form.get("tamanho", "")
             quantidade = int(request.form["quantidade"])
             preco = int(float(request.form["preco"].replace(",", ".")) * 100)
-            
+
             nome = nome_bruto.upper()
-            
+
             cursor.execute(
-        """
+                """
                 INSERT INTO produtos (nome, tipo, tamanho, quantidade, preco)
                 VALUES (?, ?, ?, ?, ?)
             """,
@@ -411,18 +435,20 @@ def produtos():
                     foto.save(os.path.join(UPLOAD_FOLDER, foto_filename))
 
                     cursor.execute(
-                    """
+                        """
                     INSERT INTO fotos_produto (produto_id, caminho)
                     VALUES (?, ?)
-                    """,(produto_id, foto_filename))
-                               
+                    """,
+                        (produto_id, foto_filename),
+                    )
+
             conn.commit()
 
         # --- SEMPRE: buscar lista ---
         cursor.execute("SELECT * FROM produtos ORDER BY produto_id DESC")
         produtos_lista = cursor.fetchall()
 
-    return render_template("produto.html", produtos=produtos_lista)
+    return render_template("prateleira.html", produtos=produtos_lista)
 
 
 @app.route("/produto/<int:produto_id>")
