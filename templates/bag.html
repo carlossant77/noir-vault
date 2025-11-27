@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Bag — Produto</title>
+  <link rel="stylesheet" href="/static/styles/bag.css" />
+  <link rel="stylesheet" href="/static/styles/header.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lustria&display=swap" rel="stylesheet">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap"
+    rel="stylesheet">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400..700;1,400..700&display=swap"
+    rel="stylesheet">
+</head>
+
+<body>
+  <main class="container">
+
+    <h1 class="titulo">BAG</h1>
+
+    <section class="col-esquerda">
+
+      <!-- ITEM DO CARRINHO 1 -->
+      <div class="produto">
+        <div class="imagem" aria-hidden="true">
+          <button class="remover" aria-label="Remover item">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+
+        <div class="detalhes">
+          <div class="titulo-bloco">
+            <p class="marca">PRADA</p>
+            <p class="descricao">ANKLE BOOT MOONLITH DE COURO</p>
+          </div>
+
+          <div class="preco-bloco">
+            <p class="preco">R$ 7.000</p>
+          </div>
+
+          <div class="tamanho">
+            <p class="label" style="font-size:22px;">TAMANHO</p>
+            <p class="valor" style="font-size:13px;">37</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ITEM DO CARRINHO 2 -->
+      <div class="produto">
+        <div class="imagem" aria-hidden="true">
+          <button class="remover" aria-label="Remover item">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+
+        <div class="detalhes">
+          <div class="titulo-bloco">
+            <p class="marca">GUCCI</p>
+            <p class="descricao">CAMISA FLORAL ITALIANA</p>
+          </div>
+
+          <div class="preco-bloco">
+            <p class="preco">R$ 4.500</p>
+          </div>
+
+          <div class="tamanho">
+            <p class="label" style="font-size:22px;">TAMANHO</p>
+            <p class="valor" style="font-size:13px;">M</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ENTREGA -->
+      <div class="entrega">
+        <p>PREVISÃO DE ENTREGA</p>
+        <span>1 DE JAN. E 3 DE JAN.</span>
+      </div>
+
+    </section>
+
+
+    <div class="divisor" aria-hidden="true"></div>
+
+    <aside class="resumo">
+      <h2 style="font-family: Libre baskerville, serif; font-style: normal;">RESUMO</h2>
+
+      <div class="linha">
+        <span>SUBTOTAL</span>
+        <span>R$ 7.000</span>
+      </div>
+
+      <div class="linha">
+        <span>FRETE</span>
+        <span>R$ 275</span>
+      </div>
+
+      <input type="text" class="cupom" placeholder="CUPOM DE DESCONTO" />
+
+      <div class="linha total">
+        <span>TOTAL</span>
+        <span>R$ 7.275</span>
+      </div>
+
+      <button class="finalizar" style="font-family: 'Playfair Display', serif;">FINALIZAR COMPRA</button>
+    </aside>
+
+  </main>
+</body>
+
+</html>

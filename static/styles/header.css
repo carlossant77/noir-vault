@@ -1,16 +1,33 @@
 header {
     width: 100%;
+    background-color: white;
     margin: 0;
-    justify-self: flex-start;
+    display: flex;
+    justify-content: space-between;
+    justify-self: center;
+    position: sticky;
     top: 0px;
-    z-index: 9998;
+    z-index: 9999;
+    /* acima de tudo */
     isolation: isolate;
+    /* impede que contextos abaixo o ultrapassem */
+}
+
+.menu-container .logo {
+    margin-left: 70px;
+    padding-top: 26px;
+}
+
+.menu-container .logo a{
+    font-family: 'SimpleSerenitySerif', serif;
+    text-decoration: none;
+    color: #000000;
+    font-size: 32px;
 }
 
 nav {
-    width: 100%;
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between;
     padding-top: 26px;
     padding-bottom: 26px;
     background-color: white;

@@ -6,6 +6,7 @@
   <title>Visualizer</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="/static/styles/visualizer.css">
+  <link rel="stylesheet" href="/static/styles/header.css">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -20,16 +21,39 @@
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
 </head>
 <body>
+  <header class="menu-container">
+    <div class="logo">
+      <a href="/">NOIR VAULT</a>
+    </div>
+    <nav class="navegation-menu">
+      <div class="menu-icons">
+        <a href="/perfil">
+          <i class="fa-solid fa-user" id="icon"></i>
+        </a>
+        {% if is_admin %}
+        <a href="/dashboard">
+          <i class="fa-solid fa-chart-pie" id="icon"></i>
+        </a>
+        {% endif %}
+        <a href="/wishlist">
+          <i class="fa-solid fa-heart" id="icon"></i>
+        </a>
+        <a href="/carrinho">
+          <i class="fa-sharp fa-solid fa-bag-shopping" id="icon"></i>
+        </a>
+      </div>
+    </nav>
+  </header>
   <div class="container">
     <div class="top">
       <div class="gallery" aria-label="Galeria do produto">
         <div class="main-photo">
-          <img src="" alt="main photo">
+          <img src="" alt="main photo" class="foto1">
         </div>
         <div class="thumbs-row" aria-hidden="false">
-          <div class="thumb"><img src="" alt="thumb 1"></div>
-          <div class="thumb"><img src="" alt="thumb 2"></div>
-          <div class="thumb"><img src="" alt="thumb 3"></div>
+          <div class="thumb"><img src="" alt="thumb 1" class="foto2"></div>
+          <div class="thumb"><img src="" alt="thumb 2" class="foto3"></div>
+          <div class="thumb"><img src="" alt="thumb 3" class="foto4"></div>
         </div>
       </div>
 
@@ -37,31 +61,32 @@
         <div>
           <div class="brand-row">
             <div>
-              <div class="brand" style="font-family: Libre Baskerville, serif;">PRADA</div>
+              <div class="brand" style="font-family: Libre Baskerville, serif;"></div>
               <div class="rating" aria-hidden="false">
                 <span style="font-size:14px; color: black;"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="far fa-star"></i></span>
               </div>
             </div>
           </div>
-          <div class="subtitle" style="font-family: Libre Baskerville, serif;">Bota Monolith de Couro</div>
-          <div class="price" style="font-family: Libre Baskerville, serif;">R$ 7.000</div>
-          <div class="installments" style="font-family: Libre Baskerville, serif;">7 x R$ 1.000,00</div>
+          <div class="subtitle" style="font-family: Libre Baskerville, serif;"></div>
+          <div class="price" style="font-family: Libre Baskerville, serif;"></div>
+          <div class="installments" style="font-family: Libre Baskerville, serif;"></div>
           <select id="size" aria-label="Seleção de tamanho" style="font-family: Lustria, serif;">
-            <option >36</option>
-            <option>37</option>
-            <option>38</option>
-            <option>39</option>
+            <option class="option1">37</option>
+            <option class="option2">38</option>
+            <option class="option3">39</option>
+            <option class="option4">40</option>
           </select>
           <button class="btn-buy" aria-label="Comprar" style="font-family: Playfair Display, serif;">COMPRAR</button>
           <div class="actions" role="group" aria-label="Ações">
             <button class="small-btn" aria-label="Adicionar à wishlist" style="font-family: Playfair Display, serif;"><i class="far fa-heart" ></i> WISHLIST</button>
             <button class="small-btn" aria-label="Adicionar à sacola" style="font-family: Playfair Display, serif;"><i class="fas fa-shopping-bag"></i> BAG</button>
           </div>
+          <!--
           <div class="mini-gallery" aria-hidden="true">
             <div class="mini"><img src="" alt="mini 1"></div>
             <div class="mini"><img src="" alt="mini 2"></div>
             <div class="mini"><img src="" alt="mini 3"></div>
-          </div>
+          </div>-->
         </div>
       </aside>
     </div>
