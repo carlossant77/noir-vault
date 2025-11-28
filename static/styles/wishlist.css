@@ -72,6 +72,10 @@ body{
   background: transparent;
 }
 
+.card button:hover {
+  background-color: green;
+}
+
 .wishlist{
   font-size: 96px;
   line-height: 0.85;

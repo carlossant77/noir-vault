@@ -23,15 +23,15 @@ def login_check(data):
         emit("change_page", {"url": data.get("url")})
     else:
         emit("open_modal")
-        
+
 
 @socketio.on("buscarUser")
 def buscar_user(data):
     print(data)
     if session.get("usuario"):
-        if data['rota'] == 'carrinho':
+        if data["rota"] == "carrinho":
             emit("adicionar_roupa")
-        elif data['rota'] == 'wishlist':
+        elif data["rota"] == "wishlist":
             emit("adicionar_wishlist")
     else:
         emit("open_modal")
@@ -94,11 +94,13 @@ def salvar_foto(data):
 def salvar_carrinho(data):
     user_id = obter_user()
     adicionar_ao_carrinho(user_id, data)
-    
+
+
 @socketio.on("adicionarWishlist")
 def salvar_wishlist(data):
     user_id = obter_user()
     adicionar_a_wishlist(user_id, data)
+
 
 @socketio.on("removerProduto")
 def remover_item(data):
@@ -110,9 +112,24 @@ def remover_item(data):
     cursor.execute(
         """
                    DELETE FROM carrinho WHERE id = ?""",
-        (data['produtoId'],),
+        (data["produtoId"],),
     )
-    
+
+    conn.commit()
+    conn.close()
+
+
+@socketio.on("removerWishlist")
+def remover_wishlist(data):
+    conn = get_db()
+    cursor = conn.cursor()
+
+    cursor.execute(
+        """
+                   DELETE FROM wishlist WHERE id = ?""",
+        (data["id"],),
+    )
+
     conn.commit()
     conn.close()
 
@@ -322,13 +339,14 @@ def adicionar_ao_carrinho(cliente_id, produto):
     conn.commit()
     conn.close()
 
+
 def adicionar_a_wishlist(cliente_id, produto):
     conn = get_db()
     cursor = conn.cursor()
 
     dados_json = json.dumps(produto)
     dados = produto["produto"]
-    
+
     cursor.execute(
         """
         INSERT INTO wishlist (cliente_id, produto_id, dados_produto)
@@ -336,12 +354,13 @@ def adicionar_a_wishlist(cliente_id, produto):
     """,
         (cliente_id, dados["produto_id"], dados_json),
     )
-    
-    print('dados enviados com sucesso! dados:' + dados_json)
+
+    print("dados enviados com sucesso! dados:" + dados_json)
 
     conn.commit()
     conn.close()
-    
+
+
 def obter_carrinho():
     user_id = obter_user()
 
@@ -358,6 +377,7 @@ def obter_carrinho():
     carrinho = [dict(row) for row in colunas]
 
     return carrinho
+
 
 def obter_wishlist():
     user_id = obter_user()
@@ -431,10 +451,11 @@ def carrinho():
     valor_compra = calcular_compra()
     return render_template("bag.html", carrinho=carrinho, valor_compra=valor_compra)
 
+
 @app.route("/wishlist")
-def wishlist(): 
+def wishlist():
     wishlist_bruta = obter_wishlist()
-    
+
     wishlist = []
     for item in wishlist_bruta:
         dados_produto_dict = json.loads(item["dados_produto"])
@@ -444,9 +465,10 @@ def wishlist():
         del item["dados_produto"]
 
         wishlist.append(item)
-        
-    print(f'wilist  recebida: {wishlist}')
+
+    print(f"wilist  recebida: {wishlist}")
     return render_template("wishlist.html", wishlist=wishlist)
+
 
 @app.route("/produtos", methods=["GET", "POST"])
 def produtos():

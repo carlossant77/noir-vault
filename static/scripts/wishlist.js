@@ -1,3 +1,10 @@
+const socket = io();
+
+socket.on('connect', () => {
+  console.log('✅ Conectado ao servidor Socket.IO!');
+  socket.emit("carregar_produtos");
+});
+
 const wrap = document.querySelector('.carousel-wrap');
 const carousel = document.querySelector('.carousel');
 const slider = document.getElementById('track');
@@ -16,6 +23,11 @@ function updateSliderRange() {
 slider.addEventListener('input', () => {
   carousel.style.transform = `translateX(-${slider.value}px)`;
 });
+
+function removerWishlist(produto_id) {
+  socket.emit("removerWishlist", { 'id': produto_id })
+  window.location.href = '/wishlist'
+}
 
 window.addEventListener('resize', updateSliderRange);
 window.addEventListener('load', updateSliderRange);
