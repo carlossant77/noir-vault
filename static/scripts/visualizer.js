@@ -77,7 +77,7 @@ function carregarProduto() {
 }
 
 function buscarUser(func) {
-  socket.emit('buscarUser', { rota: func})
+  socket.emit('buscarUser', { rota: func, 'produto': produto.produto_id })
 }
 
 function adicionarCarrinho() {

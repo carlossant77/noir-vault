@@ -32,7 +32,7 @@ def buscar_user(data):
         if data["rota"] == "carrinho":
             emit("adicionar_roupa")
         elif data["rota"] == "wishlist":
-            emit("adicionar_wishlist")
+            emit("adicionar_wishlist", { 'id': data['produto'] })
     else:
         emit("open_modal")
 
@@ -346,6 +346,16 @@ def adicionar_a_wishlist(cliente_id, produto):
 
     dados_json = json.dumps(produto)
     dados = produto["produto"]
+    id = dados["produto_id"]
+    
+    cursor.execute('''
+                   SELECT * FROM wishlist WHERE produto_id = ?'''
+                   ,(id,))
+    
+    cadastrado = cursor.fetchone()
+    if cadastrado:
+        print("já cadastrado!")
+        return
 
     cursor.execute(
         """
