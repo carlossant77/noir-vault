@@ -395,6 +395,24 @@ def adicionar_ao_carrinho(cliente_id, produto):
     conn.commit()
     conn.close()
 
+def adicionar_a_wishlist(cliente_id, produto):
+    conn = get_db()
+    cursor = conn.cursor()
+
+    dados_json = json.dumps(produto)
+    dados = produto["produto"]
+    
+    cursor.execute(
+        """
+        INSERT INTO wishlist (cliente_id, produto_id, dados_produto)
+        VALUES (?, ?, ?)
+    """,
+        (cliente_id, dados["produto_id"], dados_json),
+    )
+
+    conn.commit()
+    conn.close()
+    
 
 def obter_carrinho():
     user_id = obter_user()
