@@ -27,10 +27,11 @@ def login_check(data):
 
 @socketio.on("buscarUser")
 def buscar_user(data):
+    print(data)
     if session.get("usuario"):
-        if data.rota == 'carrinho':
+        if data['rota'] == 'carrinho':
             emit("adicionar_roupa")
-        elif data.rota == 'wishlist':
+        elif data['rota'] == 'wishlist':
             emit("adicionar_wishlist")
     else:
         emit("open_modal")
@@ -94,7 +95,7 @@ def salvar_carrinho(data):
     user_id = obter_user()
     adicionar_ao_carrinho(user_id, data)
     
-@socketio.on("adicionarCarrinho")
+@socketio.on("adicionarWishlist")
 def salvar_wishlist(data):
     user_id = obter_user()
     adicionar_a_wishlist(user_id, data)
@@ -235,80 +236,6 @@ def hash_senha(senha):
     return hashlib.sha256(senha.encode()).hexdigest()
 
 
-def get_media_avaliacao(produto_id):
-    conn = get_db()
-    cursor = conn.cursor()
-    cursor.execute(
-        "SELECT AVG(nota) as media, COUNT(nota) as total FROM avaliacoes WHERE produto_id = ?",
-        (produto_id,),
-    )
-    resultado = cursor.fetchone()
-    if resultado and resultado["total"] > 0:
-        return round(resultado["media"], 1), resultado["total"]
-    return 0.0, 0
-
-
-@app.route("/avaliar_produto/<int:produto_id>", methods=["POST"])
-def avaliar_produto(produto_id):
-    if "usuario_id" not in session:
-        return jsonify({"erro": "Você precisa estar logado para avaliar."}), 401
-
-    try:
-        # A nota vem como string do JS, ex: "3.5"
-        nota_str = request.form.get("nota", "").strip()
-
-        # 1. Validação do formato: 0 a 5, apenas .5 de casa decimal (ex: 1, 1.5, 2, 2.5, ..., 5)
-        # O regex verifica se a string é:
-        # - Um dígito de 0 a 4, opcionalmente seguido por .5 (ex: "3.5", "4")
-        # - Ou exatamente 5 (ex: "5")
-        if not nota_str or not re.fullmatch(r"([0-4](\.5)?)|5", nota_str):
-            return (
-                jsonify(
-                    {
-                        "erro": "Nota inválida. Use valores de 0 a 5, com incrementos de 0.5 (ex: 1, 1.5, 3.5)."
-                    }
-                ),
-                400,
-            )
-
-        nota = float(nota_str)
-
-        # 2. Validação do valor (redundante, mas seguro)
-        if not (0.0 <= nota <= 5.0):
-            return jsonify({"erro": "Nota deve estar entre 0 e 5."}), 400
-
-    except ValueError:
-        return jsonify({"erro": "Formato de nota inválido."}), 400
-
-    usuario_id = session["usuario_id"]
-    conn = get_db()
-    cursor = conn.cursor()
-
-    try:
-        # Usamos INSERT OR REPLACE para garantir que cada usuário só tenha uma avaliação por produto
-        cursor.execute(
-            "INSERT OR REPLACE INTO avaliacoes (usuario_id, produto_id, nota) VALUES (?, ?, ?)",
-            (usuario_id, produto_id, nota),
-        )
-        conn.commit()
-
-        # Recalcula a média após a inserção/atualização
-        media_nova, total_avaliacoes_novo = get_media_avaliacao(produto_id)
-
-        return jsonify(
-            {
-                "sucesso": True,
-                "mensagem": "Avaliação salva com sucesso!",
-                "media_avaliacao": media_nova,
-                "total_avaliacoes": total_avaliacoes_novo,
-            }
-        )
-
-    except Exception as e:
-        print(f"Erro ao salvar avaliação: {e}")
-        return jsonify({"erro": "Erro interno ao salvar a avaliação."}), 500
-
-
 @app.route("/")
 def home():
 
@@ -409,11 +336,12 @@ def adicionar_a_wishlist(cliente_id, produto):
     """,
         (cliente_id, dados["produto_id"], dados_json),
     )
+    
+    print('dados enviados com sucesso! dados:' + dados_json)
 
     conn.commit()
     conn.close()
     
-
 def obter_carrinho():
     user_id = obter_user()
 
@@ -430,6 +358,23 @@ def obter_carrinho():
     carrinho = [dict(row) for row in colunas]
 
     return carrinho
+
+def obter_wishlist():
+    user_id = obter_user()
+
+    conn = get_db()
+    cursor = conn.cursor()
+
+    cursor.execute(
+        """
+                   SELECT * FROM wishlist WHERE cliente_id = ?""",
+        (user_id,),
+    )
+
+    colunas = cursor.fetchall()
+    wishlist = [dict(row) for row in colunas]
+
+    return wishlist
 
 
 def obter_user():
@@ -486,58 +431,22 @@ def carrinho():
     valor_compra = calcular_compra()
     return render_template("bag.html", carrinho=carrinho, valor_compra=valor_compra)
 
+@app.route("/wishlist")
+def wishlist(): 
+    wishlist_bruta = obter_wishlist()
+    
+    wishlist = []
+    for item in wishlist_bruta:
+        dados_produto_dict = json.loads(item["dados_produto"])
 
-@app.route("/prateleira", methods=["GET", "POST"])
-def prateleira():
-    if "usuario_id" not in session:
-        return redirect("/login")
+        item["produto_info"] = dados_produto_dict["produto"]
 
-    if not session.get("is_admin", False):
-        return "Acesso negado! Você precisa ser administrador.", 403
+        del item["dados_produto"]
 
-    conn = get_db()
-    cursor = conn.cursor()
-
-    if request.method == "POST":
-        nome = request.form["nome"]
-        tipo = request.form["tipo"]
-        tamanho = request.form.get(
-            "tamanho", ""
-        )  # Tamanho padrão (apenas para a lista de produtos)
-        quantidade = int(request.form["quantidade"])
-        preco = int(float(request.form["preco"].replace(",", ".")) * 100)
-        descricao = request.form.get("descricao", "")
-        tamanhos_disponiveis = request.form.get("tamanhos_disponiveis", "PP,P,M,G,GG")
-
-        foto = request.files.get("foto")
-        foto_filename = None
-        if foto and foto.filename != "":
-            foto_filename = secure_filename(foto.filename)
-            foto.save(os.path.join(UPLOAD_FOLDER, foto_filename))
-
-        cursor.execute(
-            "INSERT INTO produtos (nome, tipo, tamanho, quantidade, preco, foto, descricao, tamanhos_disponiveis) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-            (
-                nome,
-                tipo,
-                tamanho,
-                quantidade,
-                preco,
-                foto_filename,
-                descricao,
-                tamanhos_disponiveis,
-            ),
-        )
-        conn.commit()
-
-    cursor.execute("SELECT * FROM produtos ORDER BY produto_id DESC")
-    cursor.execute("SELECT DISTINCT tipo FROM produtos")
-    tipos = [row["tipo"] for row in cursor.fetchall()]
-    produtos_lista = cursor.fetchall()
-    conn.close()
-
-    return render_template("prateleira.html", produtos=produtos_lista, tipos=tipos)
-
+        wishlist.append(item)
+        
+    print(wishlist)
+    return render_template("wishlist.html", wishlist=wishlist)
 
 @app.route("/produtos", methods=["GET", "POST"])
 def produtos():
@@ -617,11 +526,6 @@ def perfil():
         email=session.get("email"),
         foto=url if url != "" or None else None,
     )
-
-
-@app.route("/wishlist")
-def wishlist():
-    return render_template("wishlist.html")
 
 
 @app.route("/aplicar_cupom", methods=["POST"])
