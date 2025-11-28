@@ -445,7 +445,7 @@ def wishlist():
 
         wishlist.append(item)
         
-    print(wishlist)
+    print(f'wilist  recebida: {wishlist}')
     return render_template("wishlist.html", wishlist=wishlist)
 
 @app.route("/produtos", methods=["GET", "POST"])
