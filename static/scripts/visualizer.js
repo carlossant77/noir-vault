@@ -4,8 +4,17 @@ socket.on('connect', () => {
   console.log('✅ Conectado ao servidor Socket.IO!');
 });
 
-socket.on('abrir_confirmação', () => {
-  
+socket.on("open_modal", () => {
+  openModal()
+});
+
+socket.on("adicionar_roupa", () => {
+  adicionarCarrinho()
+  openModalRoupa()
+})
+
+socket.on("change_page", (data) => {
+  window.location.href = data.url
 })
 
 document.querySelectorAll('.acc-item').forEach(item => {
@@ -62,9 +71,63 @@ function carregarProduto() {
   console.log(produto)
 }
 
+function buscarUser() {
+  socket.emit('buscarUser')
+}
+
 function adicionarCarrinho() {
   const tamanhoContainer = document.querySelector('.tamanho')
   socket.emit('adicionarCarrinho', { 'produto': produto, 'tamanho': tamanhoContainer.value } )
+}
+
+function openModalRoupa() {
+  const cardRoupa = document.querySelector('.main-photo')
+  const div = document.querySelector('.modal-roupa')
+
+  cardRoupa.style.position = 'static'
+  div.style.display = 'flex'
+}
+
+function closeModalRoupa() {
+  const div = document.querySelector('.modal-roupa')
+
+  div.style.display = 'none'
+}
+
+function loginCheck(url) {
+  socket.emit('login_check', { 'url': url })
+}
+
+function openModal() {
+  let div = document.querySelector(".modal");
+  let fundo = document.querySelector(".overlay");
+  let header = document.querySelector(".menu-container");
+  let foto = document.querySelector(".main-photo")
+  let imagens = document.querySelectorAll(".product-thumb")
+
+  imagens.forEach((img) => {
+    img.style.position = "static";
+  })
+
+  header.style.position = "static";
+  header.style.isolation = "initial";
+  header.style.zIndex = "initial"
+  foto.style.position = "static"
+
+  div.classList.add("visible");
+  fundo.classList.add("visible");
+}
+
+function closeModal() {
+  let div = document.querySelector(".modal");
+  let fundo = document.querySelector(".overlay");
+  let header = document.querySelector(".menu-container");
+
+  header.style.position = "sticky";
+  header.style.isolation = "isolate";
+
+  div.classList.remove("visible");
+  fundo.classList.remove("visible");
 }
 
 document.addEventListener("DOMContentLoaded", (e) => {

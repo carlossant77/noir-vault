@@ -23,6 +23,14 @@ def login_check(data):
         emit("change_page", {"url": data.get("url")})
     else:
         emit("open_modal")
+        
+
+@socketio.on("buscarUser")
+def buscar_user():
+    if session.get("usuario"):
+        emit("adicionar_roupa")
+    else:
+        emit("open_modal")
 
 
 @socketio.on("carregar_produtos")

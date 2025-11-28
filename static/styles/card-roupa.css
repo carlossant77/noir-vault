@@ -24,6 +24,10 @@
     margin-left: 4px;
 }
 
+.clothe {
+    margin-top: 26px;
+}
+
 .card {
     display: flex;
     justify-content: center;

@@ -72,10 +72,15 @@ function openModal() {
   let container = document.querySelector(".hero");
   let title = document.querySelector(".titleHero");
   let subtitles = document.querySelectorAll(".filter");
+  let roupas = document.querySelectorAll(".img")
 
   subtitles.forEach((subtitle) => {
     subtitle.style.position = "static";
   });
+
+  roupas.forEach((roupa) => {
+    roupa.style.position = "static";
+  })
 
   title.style.zIndex = "initial";
   title.style.mixBlendMode = "initial";
