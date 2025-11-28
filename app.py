@@ -26,9 +26,12 @@ def login_check(data):
         
 
 @socketio.on("buscarUser")
-def buscar_user():
+def buscar_user(data):
     if session.get("usuario"):
-        emit("adicionar_roupa")
+        if data.rota == 'carrinho':
+            emit("adicionar_roupa")
+        elif data.rota == 'wishlist':
+            emit("adicionar_wishlist")
     else:
         emit("open_modal")
 
@@ -90,8 +93,11 @@ def salvar_foto(data):
 def salvar_carrinho(data):
     user_id = obter_user()
     adicionar_ao_carrinho(user_id, data)
-    emit("abrir_confirmação", {"status": "sucesso"})
-
+    
+@socketio.on("adicionarCarrinho")
+def salvar_wishlist(data):
+    user_id = obter_user()
+    adicionar_a_wishlist(user_id, data)
 
 @socketio.on("removerProduto")
 def remover_item(data):

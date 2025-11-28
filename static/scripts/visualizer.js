@@ -13,6 +13,11 @@ socket.on("adicionar_roupa", () => {
   openModalRoupa()
 })
 
+socket.on("adicionar_wishlist", () => {
+  adicionarWishlist()
+  openModalRoupa()
+})
+
 socket.on("change_page", (data) => {
   window.location.href = data.url
 })
@@ -71,13 +76,17 @@ function carregarProduto() {
   console.log(produto)
 }
 
-function buscarUser() {
-  socket.emit('buscarUser')
+function buscarUser(func) {
+  socket.emit('buscarUser', { rota: func})
 }
 
 function adicionarCarrinho() {
   const tamanhoContainer = document.querySelector('.tamanho')
   socket.emit('adicionarCarrinho', { 'produto': produto, 'tamanho': tamanhoContainer.value } )
+}
+
+function adicionarWishlist() {
+  socket.emit('adicionarWishlist', { 'produto': produto })
 }
 
 function openModalRoupa() {
