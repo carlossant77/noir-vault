@@ -27,7 +27,7 @@ body{
 
 .top{
   display:grid;
-  grid-template-columns: 1fr 380px;
+  grid-template-columns: 1fr 380px; /* Layout principal: Galeria (1fr) e Info (380px) */
   gap:var(--gap);
   align-items:start;
 }
@@ -315,4 +315,136 @@ select#size{
   height:3px;
   background:#111;
   margin-top:8px;
+}
+
+/* ---------------------------------------------------------------------- */
+/* RESPONSIVIDADE - VISUALIZER.CSS */
+/* ---------------------------------------------------------------------- */
+
+/* Telas Médias (Tablets) - Max-width: 1024px */
+@media (max-width: 1024px) {
+    .container {
+        padding: 20px;
+    }
+
+    .top {
+        /* Ajuste para tablets: Galeria (1fr) e Info (300px) */
+        grid-template-columns: 1fr 300px;
+        gap: 24px;
+    }
+
+    .main-photo {
+        min-height: 350px;
+    }
+
+    .thumb {
+        width: 70px;
+        height: 70px;
+    }
+
+    .related-grid {
+        /* Manter 4 colunas, mas reduzir o gap */
+        gap: 16px;
+    }
+
+    .product-thumb {
+        height: 220px;
+    }
+}
+
+/* Telas Pequenas (Celulares) - Max-width: 768px */
+@media (max-width: 768px) {
+    .container {
+        padding: 15px;
+    }
+
+    .top {
+        /* Layout de coluna única para celular: Galeria em cima, Info embaixo */
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .main-photo {
+        min-height: 300px;
+    }
+
+    .thumbs-row {
+        /* Permitir que as miniaturas rolem horizontalmente se houver muitas */
+        overflow-x: auto;
+        padding-bottom: 10px; /* Espaço para a barra de rolagem */
+    }
+
+    .thumb {
+        /* Reduzir o tamanho das miniaturas */
+        width: 60px;
+        height: 60px;
+        flex-shrink: 0; /* Impedir que as miniaturas encolham */
+    }
+
+    .info {
+        /* Adicionar um pouco de padding para telas muito pequenas */
+        padding: 0 5px;
+    }
+
+    .related-section {
+        margin-top: 40px;
+    }
+
+    .related-grid {
+        /* Mudar para 2 colunas para celular */
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+
+    .product-thumb {
+        height: 180px;
+    }
+
+    .product-name {
+        font-size: 12px;
+    }
+}
+
+/* Telas Extra Pequenas (Small Phones) - Max-width: 480px */
+@media (max-width: 480px) {
+    .main-photo {
+        min-height: 250px;
+    }
+
+    .thumb {
+        width: 50px;
+        height: 50px;
+    }
+
+    .brand {
+        font-size: 18px;
+    }
+
+    .price {
+        font-size: 24px;
+    }
+
+    .btn-buy {
+        font-size: 14px;
+        padding: 10px 12px;
+    }
+
+    .actions {
+        flex-direction: column; /* Empilhar os botões de ação */
+        gap: 8px;
+    }
+
+    .small-btn {
+        font-size: 12px;
+        padding: 8px 10px;
+    }
+
+    .related-grid {
+        /* Manter 2 colunas */
+        gap: 8px;
+    }
+
+    .product-thumb {
+        height: 150px;
+    }
 }
