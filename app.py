@@ -85,6 +85,23 @@ def salvar_carrinho(data):
     emit("abrir_confirmação", {"status": "sucesso"})
 
 
+@socketio.on("removerProduto")
+def remover_item(data):
+    print(data)
+
+    conn = get_db()
+    cursor = conn.cursor()
+
+    cursor.execute(
+        """
+                   DELETE FROM carrinho WHERE id = ?""",
+        (data['produtoId'],),
+    )
+    
+    conn.commit()
+    conn.close()
+
+
 def get_db():
     if "db" not in g:
         g.db = sqlite3.connect("noir.db", timeout=30, check_same_thread=False)
@@ -376,10 +393,10 @@ def obter_carrinho():
                    SELECT * FROM carrinho WHERE cliente_id = ?""",
         (user_id,),
     )
-    
+
     colunas = cursor.fetchall()
     carrinho = [dict(row) for row in colunas]
-        
+
     return carrinho
 
 
@@ -398,41 +415,43 @@ def obter_user():
     user_id = row[0]
     return user_id
 
+
 def calcular_compra():
     carrinho_bruto = obter_carrinho()
-    
+
     carrinho = []
     for item in carrinho_bruto:
-        dados_produto_dict = json.loads(item['dados_produto']) 
-    
-        item['produto_info'] = dados_produto_dict['produto']
-    
-        del item['dados_produto'] 
-    
+        dados_produto_dict = json.loads(item["dados_produto"])
+
+        item["produto_info"] = dados_produto_dict["produto"]
+
+        del item["dados_produto"]
+
         carrinho.append(item)
-    
+
     valor_compra = 0
     for item in carrinho:
-        valor_item = item['produto_info']['preco']
+        valor_item = item["produto_info"]["preco"]
         valor_compra += valor_item
-        
+
     return valor_compra
-    
+
+
 @app.route("/carrinho", methods=["GET", "POST"])
 def carrinho():
     carrinho_bruto = obter_carrinho()
-    
+
     carrinho = []
     for item in carrinho_bruto:
-        dados_produto_dict = json.loads(item['dados_produto']) 
-    
-        item['produto_info'] = dados_produto_dict['produto']
-    
-        del item['dados_produto'] 
-    
+        dados_produto_dict = json.loads(item["dados_produto"])
+
+        item["produto_info"] = dados_produto_dict["produto"]
+
+        del item["dados_produto"]
+
         carrinho.append(item)
-    
-    valor_compra = calcular_compra()  
+    print(carrinho)
+    valor_compra = calcular_compra()
     return render_template("bag.html", carrinho=carrinho, valor_compra=valor_compra)
 
 

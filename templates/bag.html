@@ -22,6 +22,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400..700;1,400..700&display=swap"
     rel="stylesheet">
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
 </head>
 
 <body>
@@ -55,13 +56,15 @@
     <section class="col-esquerda">
 
       {% for produto in carrinho %}
-      
+
       <div class="produto">
         <div class="imagem" aria-hidden="true">
           <img src="/static/assets/{{ produto.produto_info.fotos[0] }}" alt="" class="img-produto">
-          <button class="remover" aria-label="Remover item" onclick="removerItem(produto.produto_info.nome, produto.tamanho_selecionado)">
+          <button class="remover" aria-label="Remover item"
+            onclick="removerItem('{{ produto.id }}')">
             <i class="fas fa-times"></i>
           </button>
+
         </div>
 
         <div class="detalhes">
@@ -118,6 +121,7 @@
     </aside>
 
   </main>
+  <script src="/static/scripts/bag.js"></script>
 </body>
 
 </html>
