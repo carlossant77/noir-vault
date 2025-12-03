@@ -20,6 +20,18 @@ function updateSliderRange() {
   carousel.style.transform = `translateX(-${slider.value}px)`;
 }
 
+document.addEventListener("click", (e) => {
+    const wrapper = e.target.closest(".card");
+    if (!wrapper) return;
+
+    const produto = JSON.parse(wrapper.dataset.produto);
+
+    // Salvar no LocalStorage
+    localStorage.setItem("produtoSelecionado", JSON.stringify(produto));
+
+    window.location.href = '/visualizar'
+});
+
 slider.addEventListener('input', () => {
   carousel.style.transform = `translateX(-${slider.value}px)`;
 });

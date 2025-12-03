@@ -65,6 +65,7 @@
       card.classList.add("card");
       card.style.position = "relative"; // permite posicionar o botão no canto
 
+      card.setAttribute.dataProduto = JSON.stringify(item)
       // Define imagem principal
       const img = document.createElement("img");
       img.src = `/static/assets/${produto.fotos[0]}`;
