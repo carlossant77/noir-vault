@@ -558,6 +558,11 @@ def perfil():
         email=session.get("email"),
         foto=url if url != "" or None else None,
     )
+    
+
+@app.route('/faq')
+def faq():
+    return render_template('faq.html')
 
 
 @app.route("/aplicar_cupom", methods=["POST"])

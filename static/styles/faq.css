@@ -24,6 +24,11 @@ body {
     transform: translateX(3px);
 }
 
+.logout-btn a {
+    text-decoration: none;
+    color: #ffffff;
+}
+
 .container {
     max-width: 1300px;
     margin: auto;
